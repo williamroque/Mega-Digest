@@ -80,11 +80,17 @@ bdf_end_margin = 21
 # Is client name
 is_name = re.compile('\d+ - .+')
 
-# Find quadra phases 1 and 2
-match_quadra = re.compile('QD .+\s')
+# Get lote number from name
+match_unidade = re.compile('\d+')
+
+# Find quadra
+match_quadra = re.compile('QD .[\w\d]+')
 
 # Begins with empreendimento
 begins_with_empr = re.compile('^empreendimento', re.I)
+
+# Find date
+match_date = re.compile('\d{4}-\d{2}-\d{2}')
 
 # For each file dataframe
 for file_dataframe in file_dataframes:
@@ -122,19 +128,17 @@ for file_dataframe in file_dataframes:
 
         sdf_row += 1
 
-    print(sdf_client_data)
-
     bdf_client_data = {}
     bdf_row = 19
     bdf_row_end = len(bdf.index) - bdf_end_margin
 
     bdf_data_cols = {
-        'sequence': 2,
-        'date': 5,
-        'value': 27,
+        'sequencia': 1,
+        'data': 4,
+        'valor_pagamento': 26,
         'LATEFEE--------------------':'--------------------------',
-        'fee': 16,
-        'discount': 19
+        'multa': 15,
+        'desconto': 18
     }
 
     # Current empreendimento
@@ -161,20 +165,36 @@ for file_dataframe in file_dataframes:
             bdf_row += 1
             continue
 
+        # Name without unidade
+        parsed_name = name[5:]
+
         # Create name key if not mapped
-        if not name in bdf_client_data:
-            bdf_client_data[name] = []
+        if not parsed_name in bdf_client_data:
+            bdf_client_data[parsed_name] = []
+
+        # Format number to two decimal places
+        format_number = lambda x: '{0:.2f}'.format(x)
 
         # Add row data to name
-        bdf_client_data[name].append({
+        bdf_client_data[parsed_name].append({
             'empreendimento': empreendimento,
-            'quadra': quadra
-        });
-
-        print(name)
-        print('--'+str(bdf_row)+'--')
+            'quadra': quadra,
+            'unidade': match_unidade.match(name).group(0),
+            'sequencia': str(bdf.iloc[bdf_row, bdf_data_cols['sequencia']]),
+            'data': match_date.match(str(bdf.iloc[bdf_row, bdf_data_cols['data']])).group(0),
+            'valor_pagamento': format_number(bdf.iloc[bdf_row, bdf_data_cols['valor_pagamento']]),
+            'atraso': '------',
+            'multa': format_number(bdf.iloc[bdf_row, bdf_data_cols['multa']]),
+            'desconto': format_number(bdf.iloc[bdf_row, bdf_data_cols['desconto']])
+        })
 
         bdf_row += 1
 
-    print(bdf_client_data)
+    # Print out rows
+    for key in bdf_client_data:
+        for row in bdf_client_data[key]:
+            print(key + ' | ' + sdf_client_data[key], end=' | ')
+            for loc in row:
+                print(row[loc], end=' | ')
+            print(' ')
 
