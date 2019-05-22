@@ -70,9 +70,6 @@ for boletim, saldo in boletins_saldos_map.items():
 # Compile raw data
 empreendimentos = ['PVV']
 
-# Output of the form: array of maps -> array of array of client data rows
-output_table = []
-
 # Saldo and boletim files end margin from bottom
 sdf_end_margin = 1
 bdf_end_margin = 21
