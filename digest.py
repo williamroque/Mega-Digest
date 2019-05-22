@@ -68,6 +68,8 @@ for boletim, saldo in boletins_saldos_map.items():
     file_dataframes.append([bdf, sdf])
 
 # Compile raw data
+
+# List of possible empreendimentos
 empreendimentos = ['PVV']
 
 # Saldo and boletim files end margin from bottom
