@@ -1,0 +1,92 @@
+html, body {
+    width: 100%;
+    height: 100%;
+    padding: 0;
+    margin: 0;
+    -webkit-user-select: none;
+    -webkit-app-region: drag;
+    border: none;
+}
+
+#boletimWrapper, #saldoWrapper {
+    width: 50%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0;
+    padding: 0;
+    border: none;
+}
+
+#boletimWrapper {
+    float: left;
+}
+
+#saldoWrapper {
+    float: right;
+}
+
+.fileInput::-webkit-scrollbar { 
+    display: none;
+}
+
+.fileInput {
+    border: none;
+    border-bottom: solid 1px #C0B283;
+    width: 350px;
+    height: 35px;
+    font-family: 'helvetica neue';
+    font-size: 12pt;
+    display: flex;
+    align-items: flex-end;
+    padding-bottom: 5px;
+    padding-left: 5px;
+    padding-right: 5px;
+    overflow-x: scroll;
+    overflow-y: hidden;
+    white-space: nowrap;
+    cursor: pointer;
+    transform: translateY(-5px);
+}
+
+#run-button {
+    border: 0;
+    outline: none;
+    background: #C0B283;
+    width: 125px;
+    height: 40px;
+    font-size: 13pt;
+    color: white;
+    font-family: 'helvetica neue';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    cursor: pointer;
+}
+
+/* From Google material icons font */
+
+@font-face {
+    font-family: 'Material Icons';
+    font-style: normal;
+    font-weight: 400;
+    src: url(./material_font.woff2) format('woff2');
+}
+
+/* ------------------------------- */
+
+#close-window {
+    position: fixed;
+    top: 10px;
+    left: 10px;
+    width: 30px;
+    height: 30px;
+    cursor: pointer;
+    color: #C0B283;
+    font-family: 'Material Icons';
+    font-size: 22pt;
+    font-style: normal;
+}
+
