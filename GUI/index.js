@@ -13,10 +13,10 @@ const boletimInput = document.querySelector('#boletimInput');
 const saldoInput = document.querySelector('#saldoInput');
 
 // Run script button
-const runScriptButton = document.querySelector('#run-button');
+const runScriptButton = document.querySelector('#runButton');
 
 // Close window
-const closeWindowButton = document.querySelector('#close-window');
+const closeWindowButton = document.querySelector('#closeWindow');
 
 // File drag and drop
 
