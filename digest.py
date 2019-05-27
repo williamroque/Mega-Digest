@@ -1,71 +1,18 @@
+
 import pandas as pd
 
 import os
+import sys
 
 import re
 
-# Paths for excel files
-saldos_path = './saldos/'
-boletins_path = './boletins/'
-
 # Excel files
-saldos_files = os.listdir(saldos_path)
-boletins_files = os.listdir(boletins_path)
-
-# Exclude files with these prefixes
-excluded_prefixes = ['~']
-
-# Function for prefix exclusion filter
-def exclude_func(x):
-    for prefix in excluded_prefixes:
-        if x[0] == prefix:
-            return False
-    return True
-
-# Filter file lists for prefix exclusion
-saldos_files = list(filter(exclude_func, saldos_files))
-boletins_files = list(filter(exclude_func, boletins_files))
-
-# Dictionary for boletins-saldos map
-boletins_saldos_map = {}
-
-# Test for int
-def isInt(x):
-    try:
-        int(x)
-        return True
-    except ValueError:
-        return False
-
-# Map boletins to saldos for data compilation
-for boletim_file in boletins_files:
-    saldo = ''
-
-    # While saldo is empty and is not int
-    while saldo == '':
-
-        # Print options for saldo files
-        for index, saldo_file in enumerate(saldos_files):
-            print(str(index) + ' ' + saldo_file)
-
-        # Choose option
-        saldo_input = input(boletim_file + ' > ')
-
-        # If option is integer and within range, set saldo to input
-        if isInt(saldo_input) and int(saldo_input) < len(saldos_files):
-            saldo = saldo_input
-
-    # Map boletins to saldos
-    boletins_saldos_map[boletim_file] = saldos_files[int(saldo)]
+boletim_file = sys.argv[1]
+saldo_file = sys.argv[2]
 
 # Read excel files
-file_dataframes = []
-
-for boletim, saldo in boletins_saldos_map.items():
-    bdf = pd.read_excel(boletins_path + boletim)
-    sdf = pd.read_excel(saldos_path + saldo)
-
-    file_dataframes.append([bdf, sdf])
+bdf = pd.read_excel(boletim_file)
+sdf = pd.read_excel(saldo_file)
 
 # Compile raw data
 
@@ -91,109 +38,160 @@ begins_with_empr = re.compile('^empreendimento', re.I)
 # Find date
 match_date = re.compile('\d{4}-\d{2}-\d{2}')
 
-# For each file dataframe
-for file_dataframe in file_dataframes:
-    # Dataframe for boletim and saldo, separately
-    bdf = file_dataframe[0]
-    sdf = file_dataframe[1]
+# Strip document to number
+match_num = re.compile('\d+')
+strip_doc = lambda x: ''.join(match_num.findall(x))
 
-    # sdf handling
+# sdf handling
 
-    # Client data for sdf
-    sdf_client_data = {}
+# Client data for sdf
+sdf_client_data = {}
 
-    # Row index
-    sdf_row = 3
+# Dimensions for sdf
+sdf_dim = sdf.shape
+sdf_height = sdf_dim[0]
+sdf_width = sdf_dim[1]
 
-    # Last row for iteration
-    sdf_row_end = len(sdf.index) - sdf_end_margin
+# Find data cols
 
-    # Required columns
-    sdf_data_cols = {
-        'name': 8,
-        'CPF': 9
-    }
+# Title cells
+title_row = 0
 
-    # For each row until last row for iteration in sdf
-    while sdf_row < sdf_row_end:
-        # Get name of client
-        name = sdf.iloc[sdf_row, sdf_data_cols['name']]
+# Row index
+title_col = 0
 
-        # Get CPF of client
-        cpf = sdf.iloc[sdf_row, sdf_data_cols['CPF']]
+# Max constraints for title cols
+title_max = sdf_width - 1
 
-        # Map client name to CPF in spf client data
-        sdf_client_data[name] = cpf
+# Required columns
+sdf_data_cols = {
+    'name': False,
+    'document': False
+}
 
-        sdf_row += 1
+# For each title col
+while title_col < title_max:
+    # Set title to title col value
+    title = sdf.iloc[title_row, title_col]
 
-    bdf_client_data = {}
-    bdf_row = 19
-    bdf_row_end = len(bdf.index) - bdf_end_margin
+    # If title is 'Cliente', set 'name' data col to current column index
+    # If title is 'Documento', set 'document' data col to current column index
+    if title == 'Cliente':
+        sdf_data_cols['name'] = title_col
+    elif title == 'Documento':
+        sdf_data_cols['document'] = title_col
 
-    bdf_data_cols = {
-        'sequencia': 1,
-        'data': 4,
-        'valor_pagamento': 26,
-        'LATEFEE--------------------':'--------------------------',
-        'multa': 15,
-        'desconto': 18
-    }
+    title_col += 1
 
-    # Current empreendimento
-    empreendimento = ''
-    quadra = ''
+if not sdf_data_cols['name']:
+    print('Requires cliente AND document data')
+    sys.exit()
 
-    # For each bdf row
-    while bdf_row < bdf_row_end:
-        # Client name
-        name = str(bdf.iloc[bdf_row, 0])
+# Current row for iteration
+sdf_row = 3
 
-        # If is not client name
-        if not is_name.match(name):
+# Last row for iteration
+sdf_row_end = sdf_height - sdf_end_margin
 
-            # If is empreendimento name
-            if begins_with_empr.match(name):
 
-                # Check if empreendimento name exists and set current empreendimento and quadra
-                for empr in empreendimentos:
-                    if name.lower().find(empr.lower()) > -1:
-                        empreendimento = empr
-                        quadra = match_quadra.search(name).group(0)[3:]
+# For each row until last row for iteration in sdf
+while sdf_row < sdf_row_end:
+    # Get name of client
+    name = sdf.iloc[sdf_row, sdf_data_cols['name']]
 
-            bdf_row += 1
-            continue
+    # Get document of client
+    document = sdf.iloc[sdf_row, sdf_data_cols['document']]
 
-        # Name without unidade
-        parsed_name = name[5:]
+    # Strip document
+    document = strip_doc(document)
 
-        # Create name key if not mapped
-        if not parsed_name in bdf_client_data:
-            bdf_client_data[parsed_name] = []
+    # Get document type
+    if len(document) == 11:
+        document_type = 'F'
+    else:
+        document_type = 'J'
 
-        # Format number to two decimal places
-        format_number = lambda x: '{0:.2f}'.format(x)
+    # Map client name to document in spf client data
+    sdf_client_data[name] = [document.rjust(14), document_type]
 
-        # Add row data to name
-        bdf_client_data[parsed_name].append({
-            'empreendimento': empreendimento,
-            'quadra': quadra,
-            'unidade': match_unidade.match(name).group(0),
-            'sequencia': str(bdf.iloc[bdf_row, bdf_data_cols['sequencia']]),
-            'data': match_date.match(str(bdf.iloc[bdf_row, bdf_data_cols['data']])).group(0),
-            'valor_pagamento': format_number(bdf.iloc[bdf_row, bdf_data_cols['valor_pagamento']]),
-            'atraso': '------',
-            'multa': format_number(bdf.iloc[bdf_row, bdf_data_cols['multa']]),
-            'desconto': format_number(bdf.iloc[bdf_row, bdf_data_cols['desconto']])
-        })
+    sdf_row += 1
+
+bdf_client_data = {}
+bdf_row = 19
+bdf_row_end = len(bdf.index) - bdf_end_margin
+
+bdf_data_cols = {
+    'sequencia': 1,
+    'data': 4,
+    'valor_pagamento': 26,
+    'mora': 16,
+    'multa': 15,
+    'desconto': 18
+}
+
+# Current empreendimento
+empreendimento = ''
+quadra = ''
+
+# For each bdf row
+while bdf_row < bdf_row_end:
+    # Client name
+    name = str(bdf.iloc[bdf_row, 0])
+
+    # If is not client name
+    if not is_name.match(name):
+
+        # If is empreendimento name
+        if begins_with_empr.match(name):
+
+            # Check if empreendimento name exists and set current empreendimento and quadra
+            for empr in empreendimentos:
+                if name.lower().find(empr.lower()) > -1:
+                    empreendimento = empr
+                    quadra = match_quadra.search(name).group(0)[3:]
 
         bdf_row += 1
+        continue
 
-    # Print out rows
-    for key in bdf_client_data:
-        for row in bdf_client_data[key]:
-            print(key + ' | ' + sdf_client_data[key], end=' | ')
-            for loc in row:
-                print(row[loc], end=' | ')
-            print(' ')
+    # Name without unidade
+    parsed_name = name[5:]
 
+    # Create name key if not mapped
+    if not parsed_name in bdf_client_data:
+        bdf_client_data[parsed_name] = []
+
+    # Format number to two decimal places
+    format_number = lambda x: '{0:015.2f}'.format(x).replace('.', ',')
+
+    # Add row data to name
+    bdf_client_data[parsed_name].append({
+        'empreendimento': empreendimento,
+        'quadra': quadra,
+        'unidade': '{0:02}'.format(int(match_unidade.match(name).group(0))),
+        'sequencia': str(bdf.iloc[bdf_row, bdf_data_cols['sequencia']]),
+        'data': match_date.match(str(bdf.iloc[bdf_row, bdf_data_cols['data']])).group(0),
+        'valor_pagamento': format_number(bdf.iloc[bdf_row, bdf_data_cols['valor_pagamento']]),
+        'atraso': format_number(bdf.iloc[bdf_row, bdf_data_cols['mora']]),
+        'multa': format_number(bdf.iloc[bdf_row, bdf_data_cols['multa']]),
+        'desconto': format_number(bdf.iloc[bdf_row, bdf_data_cols['desconto']])
+    })
+
+    bdf_row += 1
+
+# Print out rows
+txt = ''
+for key in bdf_client_data:
+    for row in bdf_client_data[key]:
+        txt += sdf_client_data[key][1] + ';'
+        txt += sdf_client_data[key][0] + ';'
+        txt += row['unidade'] + ';'
+        txt += '1234' + ';'
+        txt += row['sequencia'] + ';'
+        txt += row['data'] + ';'
+        txt += row['valor_pagamento'] + ';'
+        txt += row['atraso'] + ';'
+        txt += row['multa'] + ';'
+        txt += row['desconto'] + '\n'
+
+with open(sys.argv[3], 'w+') as f:
+    f.write(txt)
