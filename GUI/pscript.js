@@ -1,4 +1,5 @@
 const pScript = `
+
 import pandas as pd
 
 import os
@@ -47,17 +48,52 @@ strip_doc = lambda x: ''.join(match_num.findall(x))
 # Client data for sdf
 sdf_client_data = {}
 
-# Row index
-sdf_row = 3
+# Dimensions for sdf
+sdf_dim = sdf.shape
+sdf_height = sdf_dim[0]
+sdf_width = sdf_dim[1]
 
-# Last row for iteration
-sdf_row_end = len(sdf.index) - sdf_end_margin
+# Find data cols
+
+# Title cells
+sdf_title_row = 0
+
+# Row index
+sdf_title_col = 0
+
+# Max constraints for title cols
+sdf_title_max = sdf_width - 1
 
 # Required columns
 sdf_data_cols = {
-    'name': 8,
-    'document': 9
+    'name': False,
+    'document': False
 }
+
+# For each title col
+while sdf_title_col < sdf_title_max:
+    # Set title to title col value
+    sdf_title = sdf.iloc[sdf_title_row, sdf_title_col]
+
+    # If title is 'Cliente', set 'name' data col to current column index
+    # If title is 'Documento', set 'document' data col to current column index
+    if sdf_title == 'Cliente':
+        sdf_data_cols['name'] = sdf_title_col
+    elif sdf_title == 'Documento':
+        sdf_data_cols['document'] = sdf_title_col
+
+    sdf_title_col += 1
+
+for col in sdf_data_cols:
+    if not sdf_data_cols[col]:
+        print('Requires', col, 'data')
+        sys.exit()
+
+# Current row for iteration
+sdf_row = 3
+
+# Last row for iteration
+sdf_row_end = sdf_height - sdf_end_margin
 
 # For each row until last row for iteration in sdf
 while sdf_row < sdf_row_end:
@@ -81,18 +117,49 @@ while sdf_row < sdf_row_end:
 
     sdf_row += 1
 
-bdf_client_data = {}
-bdf_row = 19
-bdf_row_end = len(bdf.index) - bdf_end_margin
+bdf_dim = bdf.shape
+bdf_height = bdf_dim[0]
+bdf_width = bdf_dim[1]
+
+bdf_title_row = 12
+bdf_title_col = 0
+bdf_title_max = bdf_width - 1
 
 bdf_data_cols = {
-    'sequencia': 1,
-    'data': 4,
-    'valor_pagamento': 26,
-    'mora': 16,
-    'multa': 15,
-    'desconto': 18
+    'sequencia': False,
+    'data': False,
+    'valor_pagamento': False,
+    'mora': False,
+    'multa': False,
+    'desconto': False
 }
+
+while bdf_title_col < bdf_title_max:
+    title = bdf.iloc[bdf_title_row, bdf_title_col]
+
+    if title == 'Sequ\\u00EAncia':
+        bdf_data_cols['sequencia'] = bdf_title_col
+    elif title == 'Data\\nBaixa':
+        bdf_data_cols['data'] = bdf_title_col
+    elif title == 'Valor\\nPago':
+        bdf_data_cols['valor_pagamento'] = bdf_title_col
+    elif title == 'Valor \\nMora':
+        bdf_data_cols['mora'] = bdf_title_col
+    elif title == 'Valor\\nMulta':
+        bdf_data_cols['multa'] = bdf_title_col
+    elif title == 'Valor \\nDesconto':
+        bdf_data_cols['desconto'] = bdf_title_col
+
+    bdf_title_col += 1
+
+for col in bdf_data_cols:
+    if not bdf_data_cols[col]:
+        print('Requires', col, 'data')
+        sys.exit()
+
+bdf_client_data = {}
+bdf_row = 19
+bdf_row_end = bdf_height - bdf_end_margin
 
 # Current empreendimento
 empreendimento = ''
@@ -143,7 +210,7 @@ while bdf_row < bdf_row_end:
 
     bdf_row += 1
 
-# Print out rows
+# Write data to target .txt file
 txt = ''
 for key in bdf_client_data:
     for row in bdf_client_data[key]:
