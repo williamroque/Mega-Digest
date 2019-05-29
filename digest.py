@@ -1,4 +1,3 @@
-
 import pandas as pd
 
 import os
@@ -55,13 +54,13 @@ sdf_width = sdf_dim[1]
 # Find data cols
 
 # Title cells
-title_row = 0
+sdf_title_row = 0
 
 # Row index
-title_col = 0
+sdf_title_col = 0
 
 # Max constraints for title cols
-title_max = sdf_width - 1
+sdf_title_max = sdf_width - 1
 
 # Required columns
 sdf_data_cols = {
@@ -70,29 +69,29 @@ sdf_data_cols = {
 }
 
 # For each title col
-while title_col < title_max:
+while sdf_title_col < sdf_title_max:
     # Set title to title col value
-    title = sdf.iloc[title_row, title_col]
+    sdf_title = sdf.iloc[sdf_title_row, sdf_title_col]
 
     # If title is 'Cliente', set 'name' data col to current column index
     # If title is 'Documento', set 'document' data col to current column index
-    if title == 'Cliente':
-        sdf_data_cols['name'] = title_col
-    elif title == 'Documento':
-        sdf_data_cols['document'] = title_col
+    if sdf_title == 'Cliente':
+        sdf_data_cols['name'] = sdf_title_col
+    elif sdf_title == 'Documento':
+        sdf_data_cols['document'] = sdf_title_col
 
-    title_col += 1
+    sdf_title_col += 1
 
-if not sdf_data_cols['name']:
-    print('Requires cliente AND document data')
-    sys.exit()
+for col in sdf_data_cols:
+    if not sdf_data_cols[col]:
+        print('Requires', col, 'data')
+        sys.exit()
 
 # Current row for iteration
 sdf_row = 3
 
 # Last row for iteration
 sdf_row_end = sdf_height - sdf_end_margin
-
 
 # For each row until last row for iteration in sdf
 while sdf_row < sdf_row_end:
@@ -116,22 +115,72 @@ while sdf_row < sdf_row_end:
 
     sdf_row += 1
 
-bdf_client_data = {}
-bdf_row = 19
-bdf_row_end = len(bdf.index) - bdf_end_margin
+bdf_dim = bdf.shape
+bdf_height = bdf_dim[0]
+bdf_width = bdf_dim[1]
+
+bdf_title_row = 12
+bdf_title_col = 0
+bdf_title_max = bdf_width - 1
 
 bdf_data_cols = {
-    'sequencia': 1,
-    'data': 4,
-    'valor_pagamento': 26,
-    'mora': 16,
-    'multa': 15,
-    'desconto': 18
+    'sequencia': False,
+    'data': False,
+    'valor_pagamento': False,
+    'mora': False,
+    'multa': False,
+    'desconto': False
 }
+
+while bdf_title_col < bdf_title_max:
+    title = bdf.iloc[bdf_title_row, bdf_title_col]
+
+    if title == 'Sequ\u00EAncia':
+        bdf_data_cols['sequencia'] = bdf_title_col
+    elif title == 'Data\nBaixa':
+        bdf_data_cols['data'] = bdf_title_col
+    elif title == 'Valor\nPago':
+        bdf_data_cols['valor_pagamento'] = bdf_title_col
+    elif title == 'Valor \nMora':
+        bdf_data_cols['mora'] = bdf_title_col
+    elif title == 'Valor\nMulta':
+        bdf_data_cols['multa'] = bdf_title_col
+    elif title == 'Valor \nDesconto':
+        bdf_data_cols['desconto'] = bdf_title_col
+
+    bdf_title_col += 1
+
+for col in bdf_data_cols:
+    if not bdf_data_cols[col]:
+        print('Requires', col, 'data')
+        sys.exit()
+
+bdf_client_data = {}
+bdf_row = 19
+bdf_row_end = bdf_height - bdf_end_margin
 
 # Current empreendimento
 empreendimento = ''
 quadra = ''
+
+# Get contract data
+dir_path = os.path.dirname(os.path.realpath(__file__))
+contract_data_path = dir_path + '/contract_data.txt'
+contract_data = {}
+
+with open(contract_data_path, 'r') as f:
+    for line in f:
+        line_data = line.split(';')
+        *line_data, line_name = line_data
+        line_name = line_name[:-1]
+        if not line_name in contract_data:
+            contract_data[line_name] = [line_data]
+        else:
+            contract_data[line_name].append(line_data)
+
+if contract_data == []:
+    print('Unable to read contract data')
+    sys.exit()
 
 # For each bdf row
 while bdf_row < bdf_row_end:
@@ -160,6 +209,20 @@ while bdf_row < bdf_row_end:
     if not parsed_name in bdf_client_data:
         bdf_client_data[parsed_name] = []
 
+    # Get unidade
+    unidade = match_unidade.match(name).group(0)
+    contract = ''
+
+    if parsed_name in contract_data:
+        name_target = contract_data[parsed_name]
+        for line in name_target:
+            if line[0] == unidade:
+                contract = line[1]
+    else:
+        print(parsed_name, 'not in contract data')
+        bdf_row += 1
+        continue
+
     # Format number to two decimal places
     format_number = lambda x: '{0:015.2f}'.format(x).replace('.', ',')
 
@@ -167,7 +230,8 @@ while bdf_row < bdf_row_end:
     bdf_client_data[parsed_name].append({
         'empreendimento': empreendimento,
         'quadra': quadra,
-        'unidade': '{0:02}'.format(int(match_unidade.match(name).group(0))),
+        'unidade': '{0:02}'.format(int(unidade)),
+        'contrato': contract,
         'sequencia': str(bdf.iloc[bdf_row, bdf_data_cols['sequencia']]),
         'data': match_date.match(str(bdf.iloc[bdf_row, bdf_data_cols['data']])).group(0),
         'valor_pagamento': format_number(bdf.iloc[bdf_row, bdf_data_cols['valor_pagamento']]),
@@ -178,14 +242,14 @@ while bdf_row < bdf_row_end:
 
     bdf_row += 1
 
-# Print out rows
+# Write data to target .txt file
 txt = ''
 for key in bdf_client_data:
     for row in bdf_client_data[key]:
         txt += sdf_client_data[key][1] + ';'
         txt += sdf_client_data[key][0] + ';'
         txt += row['unidade'] + ';'
-        txt += '1234' + ';'
+        txt += row['contrato'] + ';'
         txt += row['sequencia'] + ';'
         txt += row['data'] + ';'
         txt += row['valor_pagamento'] + ';'
