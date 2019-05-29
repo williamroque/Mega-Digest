@@ -1,5 +1,4 @@
 const pScript = `
-
 import pandas as pd
 
 import os
@@ -165,6 +164,25 @@ bdf_row_end = bdf_height - bdf_end_margin
 empreendimento = ''
 quadra = ''
 
+# Get contract data
+dir_path = os.path.dirname(os.path.realpath(__file__))
+contract_data_path = dir_path + '/contract_data.txt'
+contract_data = {}
+
+with open(contract_data_path, 'r') as f:
+    for line in f:
+        line_data = line.split(';')
+        *line_data, line_name = line_data
+        line_name = line_name[:-1]
+        if not line_name in contract_data:
+            contract_data[line_name] = [line_data]
+        else:
+            contract_data[line_name].append(line_data)
+
+if contract_data == []:
+    print('Unable to read contract data')
+    sys.exit()
+
 # For each bdf row
 while bdf_row < bdf_row_end:
     # Client name
@@ -192,6 +210,20 @@ while bdf_row < bdf_row_end:
     if not parsed_name in bdf_client_data:
         bdf_client_data[parsed_name] = []
 
+    # Get unidade
+    unidade = match_unidade.match(name).group(0)
+    contract = ''
+
+    if parsed_name in contract_data:
+        name_target = contract_data[parsed_name]
+        for line in name_target:
+            if line[0] == unidade:
+                contract = line[1]
+    else:
+        print(parsed_name, 'not in contract data')
+        bdf_row += 1
+        continue
+
     # Format number to two decimal places
     format_number = lambda x: '{0:015.2f}'.format(x).replace('.', ',')
 
@@ -199,7 +231,8 @@ while bdf_row < bdf_row_end:
     bdf_client_data[parsed_name].append({
         'empreendimento': empreendimento,
         'quadra': quadra,
-        'unidade': '{0:02}'.format(int(match_unidade.match(name).group(0))),
+        'unidade': '{0:02}'.format(int(unidade)),
+        'contrato': contract,
         'sequencia': str(bdf.iloc[bdf_row, bdf_data_cols['sequencia']]),
         'data': match_date.match(str(bdf.iloc[bdf_row, bdf_data_cols['data']])).group(0),
         'valor_pagamento': format_number(bdf.iloc[bdf_row, bdf_data_cols['valor_pagamento']]),
@@ -217,7 +250,7 @@ for key in bdf_client_data:
         txt += sdf_client_data[key][1] + ';'
         txt += sdf_client_data[key][0] + ';'
         txt += row['unidade'] + ';'
-        txt += '1234' + ';'
+        txt += row['contrato'] + ';'
         txt += row['sequencia'] + ';'
         txt += row['data'] + ';'
         txt += row['valor_pagamento'] + ';'

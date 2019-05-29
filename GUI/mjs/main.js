@@ -28,6 +28,10 @@ const runScript = (bPath, sPath, oFile) => {
     const spawn = require('child_process').spawn;
     const process = spawn('python3', [fileio.scriptFilePath, bPath, sPath, oFile]);
 
+    process.on('exit', () => {
+        console.log('FINISHED');
+    });
+
     process.on('error', err => console.log(err));
 };
 

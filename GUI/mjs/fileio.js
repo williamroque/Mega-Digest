@@ -1,6 +1,9 @@
 // fs for file I/O
 const fs = require('fs');
 
+// For path normalization
+const path = require('path');
+
 // For appdata
 const app = require('electron').app;
 
@@ -14,19 +17,24 @@ const platform = process.platform;
 class FileIO {
     constructor() {
         // Appdata path.. probably won't work in Windows yet, but may be patched in the future
-        this.path = platform === 'win32' ? 
-            app.getPath('appData') + '\\Mega Paysage Digest\\Script\\' : 
-            app.getPath('appData') + '/Mega Paysage Digest/Script/';
+        this.path = app.getPath('appData') + path.normalize('/Mega Paysage Digest/Script/');
+    
+        // Contract data path
+        this.cDataPath = this.path + 'contract_data.txt';
 
         // Python script path
         this.scriptFilePath = this.path + 'digest.py';
     }
 
     setup() {
-        // Create block and user data file if empty
+        // Get contract data
+        const cData = this.readData(path.normalize('./assets/contract_data.txt'));
+
+        // Create script and contract data files if empty
         if (!fs.existsSync(this.path)) {
             fs.mkdirSync(this.path);
             this.writeData(pScript, this.scriptFilePath);
+            this.writeData(cData, this.cDataPath);
         }
     }
 

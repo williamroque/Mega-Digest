@@ -19,7 +19,7 @@
     "dist-all": "electron-builder -mw",
     "dist": "electron-builder"
   },
-  "main": "main.js",
+  "main": "mjs/main.js",
   "author": "William Roque",
   "license": "ISC",
   "devDependencies": {

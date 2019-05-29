@@ -82,7 +82,7 @@ html, body {
     font-family: 'Material Icons';
     font-style: normal;
     font-weight: 400;
-    src: url(./material_font.woff2) format('woff2');
+    src: url(../assets/material_font.woff2) format('woff2');
 }
 
 /* ------------------------------- */
