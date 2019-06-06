@@ -146,7 +146,7 @@ while bdf_row < bdf_row_end:
         continue
 
     # Name without unidade
-    parsed_name = name[5:]
+    parsed_name = name[5:].strip()
 
     # Create name key if not mapped
     if not parsed_name in bdf_client_data:
@@ -202,7 +202,6 @@ for key in bdf_client_data:
 
 with open(sys.argv[2], 'w+') as f:
     f.write(txt)
-
 `;
 
 module.exports = pScript;
