@@ -7,11 +7,28 @@ import re
 
 # Excel files
 boletim_file = sys.argv[1]
-saldo_file = sys.argv[2]
 
 # Read excel files
 bdf = pd.read_excel(boletim_file)
-sdf = pd.read_excel(saldo_file)
+
+# Get contract data
+dir_path = os.path.dirname(os.path.realpath(__file__))
+contract_data_path = dir_path + '/contract_data.txt'
+contract_data = {}
+
+with open(contract_data_path, 'r') as f:
+    for line in f:
+        line_data = line.split(';')
+        *line_data, line_name = line_data
+        line_name = line_name[:-1]
+        if not line_name in contract_data:
+            contract_data[line_name] = [line_data]
+        else:
+            contract_data[line_name].append(line_data)
+
+if contract_data == []:
+    print('Unable to read contract data')
+    sys.exit()
 
 # Compile raw data
 
@@ -19,7 +36,6 @@ sdf = pd.read_excel(saldo_file)
 empreendimentos = ['PVV']
 
 # Saldo and boletim files end margin from bottom
-sdf_end_margin = 1
 bdf_end_margin = 21
 
 # Is client name
@@ -41,79 +57,23 @@ match_date = re.compile('\d{4}-\d{2}-\d{2}')
 match_num = re.compile('\d+')
 strip_doc = lambda x: ''.join(match_num.findall(x))
 
-# sdf handling
+client_data = {}
 
-# Client data for sdf
-sdf_client_data = {}
+for client in contract_data:
+    if not client in client_data:
+        data = []
 
-# Dimensions for sdf
-sdf_dim = sdf.shape
-sdf_height = sdf_dim[0]
-sdf_width = sdf_dim[1]
+        document = strip_doc(contract_data[client][0][2])
 
-# Find data cols
+        # Get document type
+        if len(document) == 11:
+            document_type = 'F'
+        else:
+            document_type = 'J'
 
-# Title cells
-sdf_title_row = 0
+        # Map client name to document in spf client data
+        client_data[client] = [document.rjust(14), document_type]
 
-# Row index
-sdf_title_col = 0
-
-# Max constraints for title cols
-sdf_title_max = sdf_width - 1
-
-# Required columns
-sdf_data_cols = {
-    'name': False,
-    'document': False
-}
-
-# For each title col
-while sdf_title_col < sdf_title_max:
-    # Set title to title col value
-    sdf_title = sdf.iloc[sdf_title_row, sdf_title_col]
-
-    # If title is 'Cliente', set 'name' data col to current column index
-    # If title is 'Documento', set 'document' data col to current column index
-    if sdf_title == 'Cliente':
-        sdf_data_cols['name'] = sdf_title_col
-    elif sdf_title == 'Documento':
-        sdf_data_cols['document'] = sdf_title_col
-
-    sdf_title_col += 1
-
-for col in sdf_data_cols:
-    if not sdf_data_cols[col]:
-        print('Requires', col, 'data')
-        sys.exit()
-
-# Current row for iteration
-sdf_row = 3
-
-# Last row for iteration
-sdf_row_end = sdf_height - sdf_end_margin
-
-# For each row until last row for iteration in sdf
-while sdf_row < sdf_row_end:
-    # Get name of client
-    name = sdf.iloc[sdf_row, sdf_data_cols['name']]
-
-    # Get document of client
-    document = sdf.iloc[sdf_row, sdf_data_cols['document']]
-
-    # Strip document
-    document = strip_doc(document)
-
-    # Get document type
-    if len(document) == 11:
-        document_type = 'F'
-    else:
-        document_type = 'J'
-
-    # Map client name to document in spf client data
-    sdf_client_data[name] = [document.rjust(14), document_type]
-
-    sdf_row += 1
 
 bdf_dim = bdf.shape
 bdf_height = bdf_dim[0]
@@ -163,24 +123,6 @@ bdf_row_end = bdf_height - bdf_end_margin
 empreendimento = ''
 quadra = ''
 
-# Get contract data
-dir_path = os.path.dirname(os.path.realpath(__file__))
-contract_data_path = dir_path + '/contract_data.txt'
-contract_data = {}
-
-with open(contract_data_path, 'r') as f:
-    for line in f:
-        line_data = line.split(';')
-        *line_data, line_name = line_data
-        line_name = line_name[:-1]
-        if not line_name in contract_data:
-            contract_data[line_name] = [line_data]
-        else:
-            contract_data[line_name].append(line_data)
-
-if contract_data == []:
-    print('Unable to read contract data')
-    sys.exit()
 
 # For each bdf row
 while bdf_row < bdf_row_end:
@@ -246,8 +188,8 @@ while bdf_row < bdf_row_end:
 txt = ''
 for key in bdf_client_data:
     for row in bdf_client_data[key]:
-        txt += sdf_client_data[key][1] + ';'
-        txt += sdf_client_data[key][0] + ';'
+        txt += client_data[key][1] + ';'
+        txt += client_data[key][0] + ';'
         txt += row['unidade'] + ';'
         txt += row['contrato'] + ';'
         txt += row['sequencia'] + ';'
@@ -257,5 +199,5 @@ for key in bdf_client_data:
         txt += row['multa'] + ';'
         txt += row['desconto'] + '\n'
 
-with open(sys.argv[3], 'w+') as f:
+with open(sys.argv[2], 'w+') as f:
     f.write(txt)

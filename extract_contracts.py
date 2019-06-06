@@ -14,9 +14,11 @@ while row_i < data_height:
     lote = data.loc[row_i, 'NOME_LOTE']
     contrato = data.loc[row_i, 'CONTRATO']
     cliente = data.loc[row_i, 'NOME_CLI']
+    documento = data.loc[row_i, 'CPF_CNPJ']
 
     txt += str(lote) + ';'
     txt += str(contrato) + ';'
+    txt += str(documento) + ';'
     txt += str(cliente) + '\n'
 
     row_i += 1
