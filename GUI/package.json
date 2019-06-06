@@ -1,37 +1,38 @@
 {
-  "name": "mega-paysage-digest",
-  "productName": "Mega Paysage Digest",
-  "version": "1.0.0",
-  "description": "digests mega output and returns txt with format to meet demands of Paysage",
-  "build": {
-    "appId": "com.ethos.MegaPaysageDigest",
-    "mac": {
-      "target": "dmg",
-      "icon": "assets/icon.png"
+    "name": "mega-paysage-digest",
+    "productName": "Mega Paysage Digest",
+    "version": "1.0.0",
+    "description": "digests mega output and returns txt with format to meet demands of Paysage",
+    "build": {
+        "appId": "com.ethos.MegaPaysageDigest",
+        "mac": {
+            "target": "dmg",
+            "icon": "assets/icon.png"
+        },
+        "win": {
+            "target": "nsis",
+            "icon": "assets/icon.png"
+        },
+        "linux": {
+            "target": "AppImage",
+            "icon": "assets/icon.png"
+        }
     },
-    "win": {
-      "target": "nsis",
-      "icon": "assets/icon.png"
+    "scripts": {
+        "start": "electron .",
+        "dist-all": "electron-builder -mwl",
+        "dist": "electron-builder"
     },
-    "lin": {
-      "target": "pacman",
-      "icon": "assets/icon.png"
+    "main": "mjs/main.js",
+    "author": "William Roque",
+    "email": "William Roque <william.roque@ethosgroup.com.br>",
+    "license": "ISC",
+    "devDependencies": {
+        "electron": "^4.1.4",
+        "electron-builder": "^20.40.2"
+    },
+    "dependencies": {
+        "fix-path": "^2.1.0",
+        "shelljs": "^0.8.3"
     }
-  },
-  "scripts": {
-    "start": "electron .",
-    "dist-all": "electron-builder -mwl",
-    "dist": "electron-builder"
-  },
-  "main": "mjs/main.js",
-  "author": "William Roque",
-  "license": "ISC",
-  "devDependencies": {
-    "electron": "^4.1.4",
-    "electron-builder": "^20.40.2"
-  },
-  "dependencies": {
-    "fix-path": "^2.1.0",
-    "shelljs": "^0.8.3"
-  }
 }
