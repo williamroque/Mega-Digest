@@ -12,11 +12,15 @@
     "win": {
       "target": "nsis",
       "icon": "assets/icon.png"
+    },
+    "lin": {
+      "target": "pacman",
+      "icon": "assets/icon.png"
     }
   },
   "scripts": {
     "start": "electron .",
-    "dist-all": "electron-builder -mw",
+    "dist-all": "electron-builder -mwl",
     "dist": "electron-builder"
   },
   "main": "mjs/main.js",

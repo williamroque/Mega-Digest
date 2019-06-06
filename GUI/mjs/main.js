@@ -4,6 +4,9 @@ const { app, dialog } = require('electron');
 // Get appdata path
 const appData = app.getPath('appData');
 
+// Interprocess communication
+const { ipcMain } = require('electron');
+
 // Python communication
 const shell = require('shelljs');
 
@@ -17,7 +20,7 @@ const fixPath = require('fix-path');
 fixPath();
 
 // Run digest Python script
-const runScript = (bPath, sPath, oFile) => {
+const runScript = (path, oFile) => {
     // Makes sure Python 3 is installed
     if (!shell.which('python3')) {
         console.log('Python 3 not installed');
@@ -26,7 +29,7 @@ const runScript = (bPath, sPath, oFile) => {
 
     // Execute python script and check for output status
     const spawn = require('child_process').spawn;
-    const process = spawn('python3', [fileio.scriptFilePath, bPath, sPath, oFile]);
+    const process = spawn('python3', [fileio.scriptFilePath, path, oFile]);
 
     process.on('exit', () => {
         console.log('FINISHED');
@@ -35,8 +38,6 @@ const runScript = (bPath, sPath, oFile) => {
     process.on('error', err => console.log(err));
 };
 
-// Interprocess communication
-const { ipcMain } = require('electron');
 
 // Create file select dialog
 const createSelectDialog = () => dialog.showOpenDialog({
@@ -61,9 +62,9 @@ ipcMain.on('get-open-dialog', (event, _) => {
 });
 
 // On request run python script with paths
-ipcMain.on('run-script', (event, paths) => {
+ipcMain.on('run-script', (event, path) => {
     const fileName = createSaveDialog();
-    if (fileName) runScript(...paths, fileName);
+    if (fileName) runScript(path, fileName);
     event.returnValue = 0;
 });
 

@@ -4,12 +4,11 @@ html, body {
     padding: 0;
     margin: 0;
     -webkit-user-select: none;
-    -webkit-app-region: drag;
     border: none;
 }
 
-#boletimWrapper, #saldoWrapper {
-    width: 50%;
+#boletimWrapper {
+    width: 100%;
     height: 100%;
     display: flex;
     flex-direction: column;
@@ -26,15 +25,10 @@ html, body {
     color: #222;
     border-bottom: solid 1px #C0B283;
     margin: 0 auto;
-    transform: translateY(-200px);
-}
-
-#boletimWrapper {
-    float: left;
-}
-
-#saldoWrapper {
-    float: right;
+    position: absolute;
+    top: 30%;
+    left: 50%;
+    transform: translate(-50%, -50%);
 }
 
 .fileInput::-webkit-scrollbar { 
@@ -44,7 +38,7 @@ html, body {
 .fileInput {
     border: none;
     border-bottom: solid 1px #C0B283;
-    width: 350px;
+    width: 500px;
     height: 35px;
     font-family: 'helvetica neue', arial;
     font-size: 12pt;
@@ -70,7 +64,7 @@ html, body {
     color: white;
     font-family: 'helvetica neue', arial;
     position: absolute;
-    top: 50%;
+    top: 65%;
     left: 50%;
     transform: translate(-50%, -50%);
     cursor: pointer;
