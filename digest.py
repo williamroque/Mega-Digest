@@ -44,6 +44,9 @@ is_name = re.compile('\d+ - .+')
 # Get lote number from name
 match_unidade = re.compile('\d+')
 
+# Get name from name cell
+strip_unidade = lambda x: re.sub('.*?-\s?', '', x)
+
 # Find quadra
 match_quadra = re.compile('QD .[\w\d]+')
 
@@ -145,7 +148,7 @@ while bdf_row < bdf_row_end:
         continue
 
     # Name without unidade
-    parsed_name = name[5:].strip()
+    parsed_name = strip_unidade(name).strip()
 
     # Create name key if not mapped
     if not parsed_name in bdf_client_data:
