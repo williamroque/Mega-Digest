@@ -35,6 +35,12 @@ const runScript = (path, oFile) => {
         console.log('FINISHED');
     });
 
+    process.stdout.on('data', output => {
+        output = output.toString();
+        if (output) {
+            fileio.writeData(output, appData + '/Mega Paysage Digest/output.txt');
+        }
+    });
     process.on('error', err => console.log(err));
 };
 
