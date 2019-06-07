@@ -57,6 +57,9 @@ begins_with_empr = re.compile('^empreendimento', re.I)
 # Find date
 match_date = re.compile('\\d{4}-\\d{2}-\\d{2}')
 
+# Parse sequence
+match_sequence = re.compile('\\d+/\\d+')
+
 # Strip document to number
 match_num = re.compile('\\d+')
 strip_doc = lambda x: ''.join(match_num.findall(x))
@@ -123,13 +126,13 @@ bdf_client_data = {}
 bdf_row = 19
 bdf_row_end = bdf_height - bdf_end_margin
 
-# Current empreendimento
-empreendimento = ''
-quadra = ''
-
 
 # For each bdf row
 while bdf_row < bdf_row_end:
+    # Current empreendimento
+    empreendimento = ''
+    quadra = ''
+
     # Client name
     name = str(bdf.iloc[bdf_row, 0])
 
@@ -161,12 +164,23 @@ while bdf_row < bdf_row_end:
 
     if parsed_name in contract_data:
         name_target = contract_data[parsed_name]
+
+        # Keep track of continue for inner loop
+        is_continue = False
+
         for line in name_target:
             if line[0] == unidade:
                 contract = line[1]
+            else:
+                bdf_row += 1
+                is_continue = True
+                break
     else:
         print(parsed_name, 'not in contract data')
         bdf_row += 1
+        continue
+
+    if is_continue:
         continue
 
     # Format number to two decimal places
@@ -178,7 +192,7 @@ while bdf_row < bdf_row_end:
         'quadra': quadra,
         'unidade': '{0:02}'.format(int(unidade)),
         'contrato': contract,
-        'sequencia': str(bdf.iloc[bdf_row, bdf_data_cols['sequencia']]),
+        'sequencia': match_sequence.match(str(bdf.iloc[bdf_row, bdf_data_cols['sequencia']])).group(0),
         'data': match_date.match(str(bdf.iloc[bdf_row, bdf_data_cols['data']])).group(0),
         'valor_pagamento': format_number(bdf.iloc[bdf_row, bdf_data_cols['valor_pagamento']]),
         'atraso': format_number(bdf.iloc[bdf_row, bdf_data_cols['mora']]),
