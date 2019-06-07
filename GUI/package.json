@@ -21,7 +21,9 @@
     "scripts": {
         "start": "electron .",
         "dist-all": "electron-builder -mwl",
-        "dist": "electron-builder"
+        "dist-win": "electron-builder -w",
+        "dist-lin": "electron-builder -l",
+        "dist-mac": "electron-builder -m"
     },
     "main": "mjs/main.js",
     "author": "William Roque",
