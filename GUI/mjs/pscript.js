@@ -1,3 +1,4 @@
+
 const pScript = `
 import pandas as pd
 
@@ -5,6 +6,8 @@ import os
 import sys
 
 import re
+
+import datetime
 
 # Excel files
 boletim_file = sys.argv[1]
@@ -54,8 +57,9 @@ match_quadra = re.compile('QD .[\\w\\d]+')
 # Begins with empreendimento
 begins_with_empr = re.compile('^empreendimento', re.I)
 
-# Find date
+# Find date and format
 match_date = re.compile('\\d{4}-\\d{2}-\\d{2}')
+format_date = lambda x: '/'.join(match_date.match(x).group(0).split('-')[::-1])
 
 # Parse sequence
 match_sequence = re.compile('\\d+/\\d+')
@@ -63,6 +67,11 @@ match_sequence = re.compile('\\d+/\\d+')
 # Strip document to number
 match_num = re.compile('\\d+')
 strip_doc = lambda x: ''.join(match_num.findall(x))
+
+# Make sure following contracts are not term
+is_term = False
+match_term = re.compile('termo', re.I)
+check_term = lambda x: bool(match_term.match(x))
 
 client_data = {}
 
@@ -80,7 +89,6 @@ for client in contract_data:
 
         # Map client name to document in spf client data
         client_data[client] = [document.rjust(14), document_type]
-
 
 bdf_dim = bdf.shape
 bdf_height = bdf_dim[0]
@@ -139,8 +147,13 @@ while bdf_row < bdf_row_end:
     # If is not client name
     if not is_name.match(name):
 
+        # Make sure no term is present
+        if check_term(name):
+            is_term = True
+
         # If is empreendimento name
         if begins_with_empr.match(name):
+            is_term = False
 
             # Check if empreendimento name exists and set current empreendimento and quadra
             for empr in empreendimentos:
@@ -148,6 +161,22 @@ while bdf_row < bdf_row_end:
                     empreendimento = empr
                     quadra = match_quadra.search(name).group(0)[3:]
 
+        bdf_row += 1
+        continue
+
+    if is_term:
+        bdf_row += 1
+        print('Skipped', name, 'due to term type')
+        continue
+
+    # Make sure date is within bounds
+    date = format_date(str(bdf.iloc[bdf_row, bdf_data_cols['data']]))
+    date_obj = datetime.datetime.strptime(date, '%d/%m/%Y')
+
+    now_obj = datetime.datetime.now()
+
+    if date_obj.month > now_obj.month:
+        print('Skipped', name, 'due to month incompatibility')
         bdf_row += 1
         continue
 
@@ -165,22 +194,17 @@ while bdf_row < bdf_row_end:
     if parsed_name in contract_data:
         name_target = contract_data[parsed_name]
 
-        # Keep track of continue for inner loop
-        is_continue = False
-
         for line in name_target:
             if line[0] == unidade:
                 contract = line[1]
-            else:
-                bdf_row += 1
-                is_continue = True
                 break
+        else:
+            bdf_row += 1
+            is_continue = True
+            break
     else:
         print(parsed_name, 'not in contract data')
         bdf_row += 1
-        continue
-
-    if is_continue:
         continue
 
     # Format number to two decimal places
@@ -193,7 +217,7 @@ while bdf_row < bdf_row_end:
         'unidade': '{0:02}'.format(int(unidade)),
         'contrato': contract,
         'sequencia': match_sequence.match(str(bdf.iloc[bdf_row, bdf_data_cols['sequencia']])).group(0),
-        'data': match_date.match(str(bdf.iloc[bdf_row, bdf_data_cols['data']])).group(0),
+        'data': date,
         'valor_pagamento': format_number(bdf.iloc[bdf_row, bdf_data_cols['valor_pagamento']]),
         'atraso': format_number(bdf.iloc[bdf_row, bdf_data_cols['mora']]),
         'multa': format_number(bdf.iloc[bdf_row, bdf_data_cols['multa']]),
@@ -220,5 +244,4 @@ for key in bdf_client_data:
 with open(sys.argv[2], 'w+') as f:
     f.write(txt)
 `;
-
 module.exports = pScript;
