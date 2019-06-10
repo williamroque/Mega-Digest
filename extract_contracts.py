@@ -19,7 +19,7 @@ while row_i < data_height:
     txt += str(lote) + ';'
     txt += str(contrato) + ';'
     txt += str(documento) + ';'
-    txt += str(cliente) + '\n'
+    txt += str(cliente).strip() + '\n'
 
     row_i += 1
 
