@@ -99,6 +99,7 @@ bdf_title_max = bdf_width - 1
 bdf_data_cols = {
     'sequencia': False,
     'data': False,
+    'vencimento': False,
     'valor_pagamento': False,
     'mora': False,
     'multa': False,
@@ -107,18 +108,21 @@ bdf_data_cols = {
 
 while bdf_title_col < bdf_title_max:
     title = bdf.iloc[bdf_title_row, bdf_title_col]
+    title = re.sub('\s', '', str(title).strip().lower())
 
-    if title == 'Sequ\u00EAncia':
+    if title == 'sequ\u00EAncia':
         bdf_data_cols['sequencia'] = bdf_title_col
-    elif title == 'Data\nBaixa':
+    elif title == 'databaixa':
         bdf_data_cols['data'] = bdf_title_col
-    elif title == 'Valor\nPago':
+    elif title == 'vencimento':
+        bdf_data_cols['vencimento'] = bdf_title_col
+    elif title == 'valorpago':
         bdf_data_cols['valor_pagamento'] = bdf_title_col
-    elif title == 'Valor \nMora':
+    elif title == 'valormora':
         bdf_data_cols['mora'] = bdf_title_col
-    elif title == 'Valor\nMulta':
+    elif title == 'valormulta':
         bdf_data_cols['multa'] = bdf_title_col
-    elif title == 'Valor \nDesconto':
+    elif title == 'valordesconto':
         bdf_data_cols['desconto'] = bdf_title_col
 
     bdf_title_col += 1
@@ -167,13 +171,16 @@ while bdf_row < bdf_row_end:
         print('Skipped', name, 'due to term type')
         continue
 
-    # Make sure date is within bounds
+    # Get date
     date = format_date(str(bdf.iloc[bdf_row, bdf_data_cols['data']]))
-    date_obj = datetime.datetime.strptime(date, '%d/%m/%Y')
+
+    # Make sure date is within bounds
+    vencimento = format_date(str(bdf.iloc[bdf_row, bdf_data_cols['vencimento']]))
+    vencimento_obj = datetime.datetime.strptime(vencimento, '%d/%m/%Y')
 
     now_obj = datetime.datetime.now()
 
-    if date_obj.month > now_obj.month:
+    if vencimento_obj.month > now_obj.month:
         print('Skipped', name, 'due to month incompatibility')
         bdf_row += 1
         continue
