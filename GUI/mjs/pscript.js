@@ -36,12 +36,6 @@ if contract_data == []:
 
 # Compile raw data
 
-# List of possible empreendimentos
-empreendimentos = ['PVV']
-
-# Saldo and boletim files end margin from bottom
-bdf_end_margin = 21
-
 # Is client name
 is_name = re.compile('\\d+ - .+')
 
@@ -50,9 +44,6 @@ match_unidade = re.compile('\\d+')
 
 # Get name from name cell
 strip_unidade = lambda x: re.sub('.*?-\\s?', '', x)
-
-# Find quadra
-match_quadra = re.compile('QD .[\\w\\d]+')
 
 # Begins with empreendimento
 begins_with_empr = re.compile('^empreendimento', re.I)
@@ -90,14 +81,17 @@ for client in contract_data:
         # Map client name to document in spf client data
         client_data[client] = [document.rjust(14), document_type]
 
+# Determine bdf data dimensions
 bdf_dim = bdf.shape
 bdf_height = bdf_dim[0]
 bdf_width = bdf_dim[1]
 
+# Limits for bdf data read
 bdf_title_row = 12
 bdf_title_col = 0
 bdf_title_max = bdf_width - 1
 
+# Columns for specific data type extractions
 bdf_data_cols = {
     'sequencia': False,
     'data': False,
@@ -108,6 +102,7 @@ bdf_data_cols = {
     'desconto': False
 }
 
+# Determine data columns dynamically
 while bdf_title_col < bdf_title_max:
     title = bdf.iloc[bdf_title_row, bdf_title_col]
     title = re.sub('\\s', '', str(title).strip().lower())
@@ -129,49 +124,56 @@ while bdf_title_col < bdf_title_max:
 
     bdf_title_col += 1
 
+# Make sure all data columns have been determined
 for col in bdf_data_cols:
     if not bdf_data_cols[col]:
         print('Requires', col, 'data')
         sys.exit()
 
+# Bdf data
 bdf_client_data = {}
 bdf_row = 19
-bdf_row_end = bdf_height - bdf_end_margin
 
+# For determining whether the 'parcela' type is partial
+not_partial = ['dinheiro', 'banco']
+is_partial = False
 
 # For each bdf row
-while bdf_row < bdf_row_end:
-    # Current empreendimento
-    empreendimento = ''
-    quadra = ''
+while bdf_row < bdf_height:
 
     # Client name
     name = str(bdf.iloc[bdf_row, 0])
 
     # If is not client name
     if not is_name.match(name):
-
         # Make sure no term is present
         if check_term(name):
             is_term = True
 
         # If is empreendimento name
-        if begins_with_empr.match(name):
+        elif begins_with_empr.match(name):
             is_term = False
 
-            # Check if empreendimento name exists and set current empreendimento and quadra
-            for empr in empreendimentos:
-                if name.lower().find(empr.lower()) > -1:
-                    empreendimento = empr
-                    quadra = match_quadra.search(name).group(0)[3:]
+        # Check if 'parcela' type is partial
+        elif name.lower() == 'repasse':
+            is_partial = True
+
+        # Check if 'parcela' type is not partial
+        elif name.lower() in not_partial:
+            is_partial = False
 
         bdf_row += 1
         continue
 
     if is_term:
-        bdf_row += 1
         print('Skipped', name, 'due to term type')
+        bdf_row += 1
         continue
+
+    # Get 'parcela' type
+    p_type = 'C'
+    if is_partial:
+        p_type = 'B'
 
     # Get date
     date = format_date(str(bdf.iloc[bdf_row, bdf_data_cols['data']]))
@@ -219,8 +221,6 @@ while bdf_row < bdf_row_end:
 
     # Add row data to name
     bdf_client_data[parsed_name].append({
-        'empreendimento': empreendimento,
-        'quadra': quadra,
         'unidade': '{0:02}'.format(int(unidade)),
         'contrato': contract,
         'sequencia': match_sequence.match(str(bdf.iloc[bdf_row, bdf_data_cols['sequencia']])).group(0),
@@ -228,6 +228,7 @@ while bdf_row < bdf_row_end:
         'valor_pagamento': format_number(bdf.iloc[bdf_row, bdf_data_cols['valor_pagamento']]),
         'atraso': format_number(bdf.iloc[bdf_row, bdf_data_cols['mora']]),
         'multa': format_number(bdf.iloc[bdf_row, bdf_data_cols['multa']]),
+        'p_type': p_type,
         'desconto': format_number(bdf.iloc[bdf_row, bdf_data_cols['desconto']])
     })
 
@@ -246,7 +247,8 @@ for key in bdf_client_data:
         txt += row['valor_pagamento'] + ';'
         txt += row['atraso'] + ';'
         txt += row['multa'] + ';'
-        txt += row['desconto'] + '\\n'
+        txt += row['desconto'] + ';'
+        txt += row['p_type'] + '\\n'
 
 with open(sys.argv[2], 'w+') as f:
     f.write(txt)
