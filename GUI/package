@@ -1,0 +1,7 @@
+sudo -HE npm run dist-all
+
+mkdir ~/Downloads/dist
+
+zip ~/Downloads/dist/mega-paysage-digest-mac.zip dist/mac/Mega\ Paysage\ Digest.app
+zip ~/Downloads/dist/mega-paysage-digest-linux.zip dist/Mega\ Paysage\ Digest\ 1.0.0.AppImage
+zip ~/Downloads/dist/mega-paysage-digest-windows.zip dist/Mega\ Paysage\ Digest\ Setup\ 1.0.0.exe
