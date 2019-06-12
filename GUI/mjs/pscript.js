@@ -24,7 +24,7 @@ with open(contract_data_path, 'r') as f:
     for line in f:
         line_data = line.split(';')
         *line_data, line_name = line_data
-        line_name = line_name[:-1]
+        line_name = line_name.strip()
         if not line_name in contract_data:
             contract_data[line_name] = [line_data]
         else:
@@ -39,11 +39,11 @@ if contract_data == []:
 # Is client name
 is_name = re.compile('\\d+ - .+')
 
-# Get lote number from name
-match_unidade = re.compile('\\d+')
-
 # Get name from name cell
 strip_unidade = lambda x: re.sub('.*?-\\s?', '', x)
+
+# Get lote number from name
+match_unidade = re.compile('\\d+')
 
 # Begins with empreendimento
 begins_with_empr = re.compile('^empreendimento', re.I)
@@ -189,6 +189,7 @@ while bdf_row < bdf_height:
         bdf_row += 1
         continue
 
+
     # Name without unidade
     parsed_name = strip_unidade(name).strip()
 
@@ -212,7 +213,7 @@ while bdf_row < bdf_height:
             is_continue = True
             break
     else:
-        print(parsed_name, 'not in contract data')
+        print(name, 'not in contract data')
         bdf_row += 1
         continue
 

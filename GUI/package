@@ -1,5 +1,6 @@
 sudo -HE npm run dist-all
 
+rm -rf ~/Downloads/Dist
 mkdir ~/Downloads/Dist
 
 zip ~/Downloads/dist/mega-paysage-digest-mac.zip dist/mac/Mega\ Paysage\ Digest.app
