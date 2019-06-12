@@ -14,6 +14,13 @@ const pScript = require('./pscript').script;
 const process = require('process');
 const platform = process.platform;
 
+// Desperate attempt at making contract data update work
+require.extensions['.txt'] = function (module, filename) {
+    module.exports = fs.readFileSync(filename, 'utf8');
+};
+
+var cData = require('./contract_data.txt');
+
 class FileIO {
     constructor() {
         // Appdata path
@@ -28,8 +35,7 @@ class FileIO {
 
     setup() {
         // Get contract data
-        const cData = this.readData(path.normalize('../assets/contract_data.txt'));
-        console.log(path.normalize('./assets/contract_data.txt'));
+        // const cData = this.readData(path.resolve('./contract_data.txt'));
 
         // Create script and contract data files if empty
         if (!fs.existsSync(this.path)) {
