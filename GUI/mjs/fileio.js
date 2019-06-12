@@ -28,7 +28,10 @@ class FileIO {
 
     setup() {
         // Get contract data
-        const cData = this.readData(path.normalize('./assets/contract_data.txt'));
+        const cData = this.readData(this.cDataPath);
+        
+        // Get script data
+        const pScript = this.readData(this.scriptFilePath);
 
         // Create script and contract data files if empty
         if (!fs.existsSync(this.path)) {
