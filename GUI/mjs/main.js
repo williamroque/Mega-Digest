@@ -82,6 +82,7 @@ const mainWinObject = {
     width: 1150,
     height: 750,
     center: true,
+    icon: '../assets/icon.png',
     frame: false,
     minWidth: 890,
     minHeight: 610,
