@@ -1,8 +1,3 @@
-sudo -HE npm run dist-all
-
-rm -rf ~/Downloads/Dist
-mkdir ~/Downloads/Dist
-
 zip '~/Downloads/Dist/mega-paysage-digest-mac.zip' 'dist/Mega Paysage Digest-1.0.0.dmg'
 zip '~/Downloads/Dist/mega-paysage-digest-linux.zip' 'dist/Mega Paysage Digest 1.0.0.AppImage'
 zip '~/Downloads/Dist/mega-paysage-digest-windows.zip' 'dist/Mega Paysage Digest Setup 1.0.0.exe'
