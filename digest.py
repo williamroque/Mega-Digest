@@ -182,7 +182,7 @@ while bdf_row < bdf_height:
 
     now_obj = datetime.datetime.now()
 
-    if vencimento_obj.month > now_obj.month:
+    if vencimento_obj.month > now_obj.month and vencimento_obj.year >= now_obj.year:
         print('Skipped', name, 'due to month incompatibility')
         bdf_row += 1
         continue
