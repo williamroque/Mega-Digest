@@ -1,6 +1,9 @@
 // Electron app import
 const { app, dialog } = require('electron');
 
+// Save window size
+const windowStateKeeper = require('electron-window-state');
+
 // Get appdata path
 const appData = app.getPath('appData');
 
@@ -79,8 +82,6 @@ const Window = require('./window');
 
 // Main window properties
 const mainWinObject = {
-    width: 1150,
-    height: 750,
     center: true,
     icon: '../assets/icon.png',
     frame: false,
@@ -95,7 +96,19 @@ const mainWinObject = {
 let mainWin;
 
 // Create main window as Window object 
-const createWindow = () => mainWin = new Window(mainWinObject);
+const createWindow = () => {
+    let mainWindowState = windowStateKeeper({
+        defaultWidth: 1150,
+        defaultHeight: 750
+    });
+
+    mainWinObject.width = mainWindowState.width;
+    mainWinObject.height = mainWindowState.height;
+
+    mainWin = new Window(mainWinObject);
+
+    mainWindowState.manage(mainWin.window);
+};
 
 // Create window when ready
 app.on('ready', createWindow);
