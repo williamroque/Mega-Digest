@@ -254,4 +254,4 @@ for key in bdf_client_data:
 with open(sys.argv[2], 'w+') as f:
     f.write(txt)
 `;
-module.exports = pScript;
+exports.script = pScript;

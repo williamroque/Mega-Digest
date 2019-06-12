@@ -8,7 +8,7 @@ const path = require('path');
 const app = require('electron').app;
 
 // Get digest script
-const pScript = require('./pscript');
+const pScript = require('./pscript').script;
 
 // Get platform
 const process = require('process');
@@ -16,7 +16,7 @@ const platform = process.platform;
 
 class FileIO {
     constructor() {
-        // Appdata path.. probably won't work in Windows yet, but may be patched in the future
+        // Appdata path
         this.path = app.getPath('appData') + path.normalize('/Mega Paysage Digest/Script/');
     
         // Contract data path
@@ -28,10 +28,7 @@ class FileIO {
 
     setup() {
         // Get contract data
-        const cData = this.readData(this.cDataPath);
-        
-        // Get script data
-        const pScript = this.readData(this.scriptFilePath);
+        const cData = this.readData(path.normalize('./assets/contract_data.txt'));
 
         // Create script and contract data files if empty
         if (!fs.existsSync(this.path)) {
