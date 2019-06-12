@@ -17,7 +17,7 @@ const platform = process.platform;
 class FileIO {
     constructor() {
         // Appdata path
-        this.path = app.getPath('appData') + path.normalize('/Mega Paysage Digest/Script/');
+        this.path = app.getPath('userData') + path.normalize('/Script/');
     
         // Contract data path
         this.cDataPath = this.path + 'contract_data.txt';
@@ -28,7 +28,8 @@ class FileIO {
 
     setup() {
         // Get contract data
-        const cData = this.readData(path.normalize('./assets/contract_data.txt'));
+        const cData = this.readData(path.normalize('../assets/contract_data.txt'));
+        console.log(path.normalize('./assets/contract_data.txt'));
 
         // Create script and contract data files if empty
         if (!fs.existsSync(this.path)) {
