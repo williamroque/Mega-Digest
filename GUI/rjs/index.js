@@ -1,6 +1,9 @@
 // Remote
 const remote = require('electron').remote;
 
+// For messages
+const { dialog } = remote;
+
 // File drag and drop elements
 const boletimDrop = document.querySelector('#boletimWrapper');
 
@@ -33,12 +36,23 @@ function attemptUpdate() {
 
     const targetLength = 16;
 
+    let returnCode = 0;
+    
     if (username && password && (password.length <= targetLength)) {
-        requestAttemptUpdate(packageFilePath, username, password);
+        returnCode = requestAttemptUpdate(packageFilePath, username, password);
+    }
+
+    if (returnCode === 0) {
         credentialsPrompt.style.display = 'none';
         usernameInput.value = '';
         passwordInput.value = '';
+    } else if (returnCode === 1) {
+        alert('Python not installed');
+    } else if (returnCode === 2) {
+        alert('Incorrect username or password');
     }
+
+
 }
 
 // Attempt update on button press

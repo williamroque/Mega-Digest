@@ -28,31 +28,50 @@ fixPath();
 
 // Run Python script
 function runScript(willQuit, args) {
-    // Makes sure Python 3 is installed
-    if (!shell.which('python3')) {
-        console.log('Python 3 not installed');
-        return;
-    }
-
-    // Execute python script and check for output status
-    const spawn = require('child_process').spawn;
-    const process = spawn('python3', args);
-
-    process.on('exit', () => {
-        console.log('FINISHED');
-        if (willQuit) {
-            app.relaunch();
-            app.exit(0);
+    return new Promise(resolve => {
+        // Makes sure Python 3 is installed
+        if (!shell.which('python3')) {
+            console.log('Python 3 not installed');
+            resolve(1);
         }
-    });
 
-    process.stdout.on('data', output => {
-        output = output.toString();
-        if (output) {
-            fileio.writeData(output, appData + '/Mega Paysage Digest/output.txt');
-        }
+        // Execute python script and check for output status
+        const spawn = require('child_process').spawn;
+        const process = spawn('python3', args);
+
+        process.stdout.on('data', output => {
+            output = output.toString();
+
+            if (output) {
+                console.log(output);
+                if (output.trim() === 'username_error' || output.trim() === 'password_error') {
+                    willQuit = false;
+                    resolve(2);
+                } else {
+                    fileio.writeData(output, appData + '/Mega Paysage Digest/output.txt');
+                }
+            }
+        });
+
+        process.on('exit', () => {
+            console.log('FINISHED');
+            if (willQuit) {
+                dialog.showMessageBox(null, {
+                    message: 'Restart application?',
+                    buttons: ['No', 'Yes'],
+                    defaultId: 1
+                }, res => {
+                    if (res === 1) {
+                        app.relaunch();
+                        app.exit(0);
+                    }
+                });
+            }
+            resolve(0);
+        });
+
+        process.on('error', err => console.log(err));
     });
-    process.on('error', err => console.log(err));
 }
 
 // Create file select dialog
@@ -78,14 +97,16 @@ ipcMain.on('get-open-dialog', (event, _) => {
 });
 
 // On request run python script with paths
-ipcMain.on('run-script', (event, path) => {
+ipcMain.on('run-script', async (event, path) => {
     const fileName = createSaveDialog();
 
+    let returnCode = 0;
+
     if (fileName && !configErrorScheduled) {
-        runScript(false, [fileio.scriptFilePath, path, fileName]);
+        returnCode = await runScript(false, [fileio.scriptFilePath, path, fileName]);
     }
 
-    event.returnValue = 0;
+    event.returnValue = returnCode;
 });
 
 // On request version test
@@ -103,30 +124,24 @@ ipcMain.on('is-valid-version', (event, path) => {
         return;
     }
 
-    fileio.writeData(targetVersion, fileio.path + 'version.txt');
-
     event.returnValue = true;
 });
 
 // On request run python script with paths
-ipcMain.on('attempt-update', (event, data) => {
+ipcMain.on('attempt-update', async (event, data) => {
     let [path, username, password] = data;
 
     const targetLength = 16;
 
     password += '='.repeat(targetLength - password.length);
 
-    let willQuit = false;
-    dialog.showMessageBox(null, {
-        message: 'Restart application?',
-        buttons: ['No', 'Yes'],
-        defaultId: 1
-    }, res => {
-        if (res) willQuit = true;
-    });
-    runScript(willQuit, [fileio.installScriptPath, path, fileio.path, username, password]);
+    let returnCode = await runScript(true, [fileio.installScriptPath, path, fileio.path, username, password]).catch(err=>console.log(err));
 
-    event.returnValue = 0;
+    if (returnCode === 0) {
+        fileio.writeData(targetVersion, fileio.path + 'version.txt');
+    }
+
+    event.returnValue = returnCode;
 });
 
 // Window class import

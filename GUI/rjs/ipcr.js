@@ -5,7 +5,7 @@ function requestOpenDialog() {
 }
 
 function requestRunScript(path) {
-    ipcRenderer.sendSync('run-script', path);
+    return ipcRenderer.sendSync('run-script', path);
 }
 
 function requestIsValidVersion(path) {
@@ -13,5 +13,5 @@ function requestIsValidVersion(path) {
 }
 
 function requestAttemptUpdate(...args) {
-    ipcRenderer.sendSync('attempt-update', args);
+    return ipcRenderer.sendSync('attempt-update', args);
 }

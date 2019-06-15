@@ -159,7 +159,7 @@ def generate_package():
 
     for key in keys:
         decrypted_key = decrypt(keys[key], master_key)
-        output_keys[key] = encrypt(global_key, decrypted_key)
+        output_keys[key] = [encrypt(global_key, decrypted_key), encrypt('test123', decrypted_key)]
 
     data['keys'] = output_keys
 
