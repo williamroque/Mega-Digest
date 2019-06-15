@@ -13,17 +13,21 @@ const { ipcMain } = require('electron');
 // Python communication
 const shell = require('shelljs');
 
-// Setup file I/O module
+// Set up file I/O module
 const FileIO = require('./fileio');
 fileio = new FileIO();
 fileio.setup();
+
+let configErrorScheduled = false;
+
+if (!fileio.configSet) configErrorScheduled = true;
 
 // Fix path after packaging
 const fixPath = require('fix-path');
 fixPath();
 
-// Run digest Python script
-const runScript = (path, oFile) => {
+// Run Python script
+function runScript(willQuit, args) {
     // Makes sure Python 3 is installed
     if (!shell.which('python3')) {
         console.log('Python 3 not installed');
@@ -32,10 +36,14 @@ const runScript = (path, oFile) => {
 
     // Execute python script and check for output status
     const spawn = require('child_process').spawn;
-    const process = spawn('python3', [fileio.scriptFilePath, path, oFile]);
+    const process = spawn('python3', args);
 
     process.on('exit', () => {
         console.log('FINISHED');
+        if (willQuit) {
+            app.relaunch();
+            app.exit(0);
+        }
     });
 
     process.stdout.on('data', output => {
@@ -45,8 +53,7 @@ const runScript = (path, oFile) => {
         }
     });
     process.on('error', err => console.log(err));
-};
-
+}
 
 // Create file select dialog
 const createSelectDialog = () => dialog.showOpenDialog({
@@ -73,7 +80,52 @@ ipcMain.on('get-open-dialog', (event, _) => {
 // On request run python script with paths
 ipcMain.on('run-script', (event, path) => {
     const fileName = createSaveDialog();
-    if (fileName) runScript(path, fileName);
+
+    if (fileName && !configErrorScheduled) {
+        runScript(false, [fileio.scriptFilePath, path, fileName]);
+    }
+
+    event.returnValue = 0;
+});
+
+// On request version test
+ipcMain.on('is-valid-version', (event, path) => {
+    const parsedData = JSON.parse(fileio.readData(path));
+    const targetVersion = parsedData.v_id.replace(/\./g, '') | 0;
+
+    let currentVersion = 0;
+    if (fileio.pathExists(fileio.path + 'version.txt')) {
+        currentVersion = fileio.readData(fileio.path + 'version.txt').toString().replace(/\./g, '') | 0;
+    }
+
+    if (currentVersion >= targetVersion) {
+        event.returnValue = false;
+        return;
+    }
+
+    fileio.writeData(targetVersion, fileio.path + 'version.txt');
+
+    event.returnValue = true;
+});
+
+// On request run python script with paths
+ipcMain.on('attempt-update', (event, data) => {
+    let [path, username, password] = data;
+
+    const targetLength = 16;
+
+    password += '='.repeat(targetLength - password.length);
+
+    let willQuit = false;
+    dialog.showMessageBox(null, {
+        message: 'Restart application?',
+        buttons: ['No', 'Yes'],
+        defaultId: 1
+    }, res => {
+        if (res) willQuit = true;
+    });
+    runScript(willQuit, [fileio.installScriptPath, path, fileio.path, username, password]);
+
     event.returnValue = 0;
 });
 
@@ -106,6 +158,12 @@ const createWindow = () => {
     mainWinObject.height = mainWindowState.height;
 
     mainWin = new Window(mainWinObject);
+    
+    if (configErrorScheduled) {
+        dialog.showMessageBox(null, {
+            message: 'Configuration not set.',
+        });
+    }
 
     mainWindowState.manage(mainWin.window);
 };
@@ -115,7 +173,7 @@ app.on('ready', createWindow);
 
 app.on('window-all-closed', () => {
     if (process.platform !== 'darwin') {
-        app.quit();
+        app.exit(0);
     }
 });
 

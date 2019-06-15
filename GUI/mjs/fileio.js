@@ -7,45 +7,55 @@ const path = require('path');
 // For appdata
 const app = require('electron').app;
 
-// Get digest script
+// Get install updates script
 const pScript = require('./pscript').script;
 
 // Get platform
 const process = require('process');
 const platform = process.platform;
 
-// Desperate attempt at making contract data update work
-require.extensions['.txt'] = function (module, filename) {
-    module.exports = fs.readFileSync(filename, 'utf8');
-};
-
-var cData = require('./contract_data.txt');
-
 class FileIO {
     constructor() {
         // Appdata path
         this.path = app.getPath('userData') + path.normalize('/Script/');
     
+        // Python script path
+        this.scriptFilePath = this.path + 'digest.py';
+
         // Contract data path
         this.cDataPath = this.path + 'contract_data.txt';
 
-        // Python script path
-        this.scriptFilePath = this.path + 'digest.py';
-    }
+        // Install updates script path
+        this.installScriptPath = this.path + 'install_package.py';
 
-    setup() {
-        // Get contract data
-        // const cData = this.readData(path.resolve('./contract_data.txt'));
-
-        // Create script and contract data files if empty
-        if (!fs.existsSync(this.path)) {
-            fs.mkdirSync(this.path);
-            this.writeData(pScript, this.scriptFilePath);
-            this.writeData(cData, this.cDataPath);
+        // Whether configuration is set
+        this.configSet = false;
+        if (
+            fs.existsSync(this.path) &&
+            fs.existsSync(this.cDataPath) &&
+            fs.existsSync(this.scriptFilePath)
+        ) {
+            this.configSet = true;
         }
     }
 
-    // Synchronously, though technically asynchronously write data (messed up)
+    pathExists(path) {
+        return fs.existsSync(path);
+    }
+
+    setup() {
+        if (!this.pathExists(this.installScriptPath)) {
+            if (!this.pathExists(this.path)) {
+                if (!this.pathExists(app.getPath('userData'))) {
+                    fs.mkdirSync(app.getPath('userData'));
+                }
+                fs.mkdirSync(this.path);
+            }
+            this.writeData(pScript, this.installScriptPath);
+        }
+    }
+
+    // Write data
     // Return 0 for success, 1 for failure (go *nix)
     writeData(data, path) {
         fs.writeFile(path, data, err => {

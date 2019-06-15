@@ -1,6 +1,3 @@
-// File select dialog
-const { dialog } = require('electron');
-
 // Remote
 const remote = require('electron').remote;
 
@@ -13,8 +10,60 @@ const boletimInput = document.querySelector('#boletimInput');
 // Run script button
 const runScriptButton = document.querySelector('#runButton');
 
+// Credentials prompt
+const credentialsPrompt = document.querySelector('#credentialsPrompt');
+
+// Crentials input
+const usernameInput = document.querySelector('#username');
+const passwordInput = document.querySelector('#password');
+
+// Add package button
+const packageButton = document.querySelector('#addPackageButton');
+
+// Package file
+let packageFilePath;
+
 // Close window
 const closeWindowButton = document.querySelector('#closeWindow');
+
+// Attempt update
+function attemptUpdate() {
+    const username = usernameInput.value;
+    const password = passwordInput.value;
+
+    const targetLength = 16;
+
+    if (username && password && (password.length <= targetLength)) {
+        requestAttemptUpdate(packageFilePath, username, password);
+        credentialsPrompt.style.display = 'none';
+        usernameInput.value = '';
+        passwordInput.value = '';
+    }
+}
+
+// Attempt update on button press
+packageButton.addEventListener('click', attemptUpdate, false);
+
+// Attempt update on press enter in password input
+passwordInput.addEventListener('keydown', e => {
+    if (e.key === 'Enter') {
+        attemptUpdate(); 
+    }
+}, false);
+
+// Cancel package prompt when press escape
+document.addEventListener('keydown', e => {
+    if (e.key === 'Escape') {
+        credentialsPrompt.style.display = 'none';
+        usernameInput.value = '';
+        passwordInput.value = '';
+    }
+});
+
+// Show credentials prompt
+function showCredentialsPrompt() {
+    credentialsPrompt.style.display = 'flex';
+}
 
 // File drag and drop
 
@@ -34,8 +83,14 @@ boletimDrop.addEventListener('drop', e => {
 
     // Sets file input to file if extension is .xls or .xlsx
     const file = e.dataTransfer.files[0].path;
-    if (/\.xls$|\.xlsx$/.test(file))
+    if (/\.xls$|\.xlsx$/.test(file)) {
         boletimInput.innerText = file;
+    } else if (/\.dpf$/.test(file)) {
+        packageFilePath = file;
+        if (requestIsValidVersion(file)) {
+            showCredentialsPrompt();
+        }
+    }
 
     // Reset drop area background color
     boletimDrop.style.background = '#FFF';

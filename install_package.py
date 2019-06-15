@@ -1,4 +1,3 @@
-const script = `
 # For script call and signal handling
 import sys
 import os
@@ -88,6 +87,3 @@ if 'cdata' in package:
     cdata = decrypt(package['cdata'], global_key)
     with open(dump_directory + 'contract_data.txt', 'w+') as f:
         f.write(cdata.decode('utf-8'))
-`;
-
-exports.script = script;
