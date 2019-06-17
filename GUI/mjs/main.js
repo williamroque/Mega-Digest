@@ -138,6 +138,8 @@ ipcMain.on('attempt-update', async (event, data) => {
     let returnCode = await runScript(true, [fileio.installScriptPath, path, fileio.path, username, password]).catch(err=>console.log(err));
 
     if (returnCode === 0) {
+        const packageData = JSON.parse(fileio.readData(path));
+        const targetVersion = packageData['v_id'];
         fileio.writeData(targetVersion, fileio.path + 'version.txt');
     }
 
