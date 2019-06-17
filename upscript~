@@ -1,6 +1,6 @@
 echo '' > pscript.js
 echo 'const pScript = `' >> pscript.js
-echo "$(cat install_package.py)" >> pscript.js
+echo "$(cat digest.py)" >> pscript.js
 echo '`;' >> pscript.js
 echo 'exports.script = pScript;' >> pscript.js
 sed -i -e 's/\\/\\\\/g' pscript.js
