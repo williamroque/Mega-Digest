@@ -1,3 +1,4 @@
+
 # For script call and signal handling
 import sys
 import os
@@ -76,7 +77,17 @@ if int(local_version) > int(version):
 
 # Decrypt and write package data
 keys = package['keys']
-global_key = decrypt(keys[username], password)
+
+if not username in keys:
+    print('username_error')
+    sys.exit(0)
+else:
+    tag = decrypt(keys[username][1], password.encode('utf-8'))
+    if tag.decode('utf-8') == 'test123':
+        global_key = decrypt(keys[username][0], password.encode('utf-8'))
+    else:
+        print('password_error')
+        sys.exit(0)
 
 if 'script' in package:
     script = decrypt(package['script'], global_key)
