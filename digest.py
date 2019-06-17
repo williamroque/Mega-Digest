@@ -218,11 +218,15 @@ while bdf_row < bdf_height:
     # Format number to two decimal places
     format_number = lambda x: '{0:015.2f}'.format(x).replace('.', ',')
 
+    # Format sequencia to three digits per term
+    pad_sequencia = lambda x: x.rjust(3, '0')
+    format_sequencia = lambda x: '/'.join(map(pad_sequencia, x.split('/')))
+
     # Add row data to name
     bdf_client_data[parsed_name].append({
         'unidade': '{0:02}'.format(int(unidade)),
         'contrato': contract,
-        'sequencia': match_sequence.match(str(bdf.iloc[bdf_row, bdf_data_cols['sequencia']])).group(0),
+        'sequencia': format_sequencia(match_sequence.match(str(bdf.iloc[bdf_row, bdf_data_cols['sequencia']])).group(0)),
         'data': date,
         'valor_pagamento': format_number(bdf.iloc[bdf_row, bdf_data_cols['valor_pagamento']]),
         'atraso': format_number(bdf.iloc[bdf_row, bdf_data_cols['mora']]),
