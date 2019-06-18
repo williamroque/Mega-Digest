@@ -158,8 +158,8 @@ def generate_package():
     master_key = get_password(True)
 
     for key in keys:
-        decrypted_key = decrypt(keys[key], master_key)
-        output_keys[key] = [encrypt(global_key, decrypted_key), encrypt('test123', decrypted_key)]
+        decrypted_key = decrypt(keys[key], master_key.encode('utf-8'))
+        output_keys[key] = [encrypt(global_key, decrypted_key.encode('utf-8')), encrypt('test123', decrypted_key.encode('utf-8'))]
 
     data['keys'] = output_keys
 
@@ -231,7 +231,7 @@ def main():
             key = get_password(True)
             data = read_data(get_data_path())
             for user in data:
-                plain_password = decrypt(data[user], key)
+                plain_password = decrypt(data[user], key.encode('utf-8'))
                 print(user, plain_password)
     elif command == 4:
         print('\nGENERATE PACKAGE\n')
