@@ -1,6 +1,9 @@
 import data_server
 import http_server
+
 import threading
+import socket
+
 import signal
 import sys
 
@@ -34,15 +37,14 @@ http_server_thread.start()
 # Shutdown server gracefully
 def shutdown_server(sig, frame):
     print('Shutting down server.')
+
     data_server.server.close()
     http_server.server.close()
 
     awake.clear()
 
-    data_server_thread.join()
     http_server_thread.join()
-
-    sys.exit(0)
+    data_server_thread.join()
 
 # Handle SIGINT (Ctrl-c)
 signal.signal(signal.SIGINT, shutdown_server)

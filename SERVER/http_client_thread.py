@@ -12,4 +12,7 @@ class HttpClientThread(threading.Thread):
         while True:
             mes = self.connection.recv(1024)
 
-            print(mes)
+            if mes:
+                print(mes)
+            else:
+                break
