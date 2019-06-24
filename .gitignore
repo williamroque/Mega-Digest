@@ -4,3 +4,5 @@ GUI/dist/
 **/.DS_Store
 
 **/*.dpf
+
+**/__pycache__

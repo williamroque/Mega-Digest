@@ -42,5 +42,7 @@ def shutdown_server(sig, frame):
     data_server_thread.join()
     http_server_thread.join()
 
+    sys.exit(0)
+
 # Handle SIGINT (Ctrl-c)
 signal.signal(signal.SIGINT, shutdown_server)
