@@ -224,7 +224,7 @@ while bdf_row < bdf_height:
 
     # Add row data to name
     bdf_client_data[parsed_name].append({
-        'unidade': '{0:02}'.format(int(unidade)),
+        'unidade': '{0:03}'.format(int(unidade)),
         'contrato': contract,
         'sequencia': format_sequencia(match_sequence.match(str(bdf.iloc[bdf_row, bdf_data_cols['sequencia']])).group(0)),
         'data': date,
