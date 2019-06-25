@@ -4,8 +4,6 @@ class DataClientThread(threading.Thread):
     def __init__(self, conn, ip, port):
         super().__init__()
 
-        self.ip = ip
-        self.port = port
         self.connection = conn
 
         print('Thread started for client {} at port {}'.format(ip, port))
@@ -20,8 +18,8 @@ class DataClientThread(threading.Thread):
                     self.connection.send(contract_data.encode('utf-8'))
                     self.connection.send(b'exit')
 
-                print('Thread ended for client {} at port {}'.format(self.ip, self.port))
                 self.connection.close()
+                print('Done.')
                 break
             else:
                 break

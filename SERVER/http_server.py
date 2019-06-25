@@ -1,6 +1,6 @@
-import http_client_thread
-
 import server
+
+import http_client_thread
 
 class HTTPServer(server.Server):
     def __init__(self, *args):
@@ -19,7 +19,6 @@ class HTTPServer(server.Server):
         self.server.close()
 
         for thread in self.threads:
-            print('HTTP thread')
             thread.join()
 
         print('HTTP server closed.')
