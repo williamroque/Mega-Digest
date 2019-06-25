@@ -21,5 +21,8 @@ class DataClientThread(threading.Thread):
                     self.connection.send(b'exit')
 
                 print('Thread ended for client {} at port {}'.format(self.ip, self.port))
+                self.connection.close()
+                break
+            else:
                 break
 

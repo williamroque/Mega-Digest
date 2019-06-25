@@ -1,16 +1,13 @@
-import socket
 import http_client_thread
 
-class Server():
-    def __init__(self, ip, port):
-        self.server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        self.server.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
-        self.server.bind((ip, port))
+import server
 
-        self.threads = []
+class HTTPServer(server.Server):
+    def __init__(self, *args):
+        super(HTTPServer, self).__init__(*args)
 
-    def listen(self, awake):
-        while True and awake.is_set():
+    def listen(self):
+        while True and self.running:
             self.server.listen(4)
             (conn, (ip, port)) = self.server.accept()
 
@@ -19,6 +16,11 @@ class Server():
 
             self.threads.append(new_client_thread)
 
+        self.server.close()
+
         for thread in self.threads:
+            print('HTTP thread')
             thread.join()
+
+        print('HTTP server closed.')
 

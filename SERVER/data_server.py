@@ -1,16 +1,13 @@
-import socket
+import server
+
 import data_client_thread
 
-class Server():
-    def __init__(self, ip, port):
-        self.server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        self.server.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
-        self.server.bind((ip, port))
+class DataServer(server.Server):
+    def __init__(self, *args):
+        super(DataServer, self).__init__(*args)
 
-        self.threads = []
-
-    def listen(self, awake):
-        while True and awake.is_set():
+    def listen(self):
+        while True and self.running:
             self.server.listen(4)
             (conn, (ip, port)) = self.server.accept()
 
@@ -19,6 +16,10 @@ class Server():
 
             self.threads.append(new_client_thread)
 
+        self.server.close()
+
         for thread in self.threads:
             thread.join()
+
+        print('Data server closed.')
 
