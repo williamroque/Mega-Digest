@@ -42,7 +42,7 @@ class HttpClientThread(threading.Thread):
                         if request.path == '/':
                             response = HTTPResponse('resource', INDEX_PATH)
                         else:
-                            response = HTTPResponse('resource', request.path)
+                            response = HTTPResponse('resource', 'data' + path)
                     else:
                         response = HTTPResponse('error', 404)
 
