@@ -2,6 +2,7 @@ import threading
 from parse_http import HTTPRequest
 from create_http import HTTPResponse
 
+import urllib.parse
 import mimetypes
 
 import re
@@ -42,6 +43,8 @@ class HttpClientThread(threading.Thread):
 
                 response = HTTPResponse('error', 422, 'text/html')
 
+                print(command, path, request_type[0])
+
                 if command == 'GET':
                     if os.path.exists('data' + path):
                         if request.path == '/':
@@ -50,10 +53,21 @@ class HttpClientThread(threading.Thread):
                             response = HTTPResponse('resource', 'data' + path, request_type[0])
                     else:
                         response = HTTPResponse('error', 404, 'text/html')
-                elif command == 'POST':
-                    pass
+                elif command == 'UPDATE':
+                    with open('data/contract_data.txt', 'a+') as f:
+                        raw_data = f.read()
 
-                print(command, path, request_type)
+                        data = raw_data.split('\n')
+
+                        term, value = urllib.parse.unquote(path)[1:].split('=')
+
+                        for i, row in enumerate(data):
+                            if row == term:
+                                data[i] = value
+                                break
+
+                        f.truncate()
+                        f.write('\n'.join(data))
 
                 self.send_http_response(response)
             else:
