@@ -12,8 +12,9 @@ class HTTPResponse():
         self.resource_type = response_resource_type
 
         self.proto = 'HTTP/1.1 {} OK'.format(response_value)
+        self.length = 0
         self.body = self.render_body()
-        self.headers = HEADERS.format(self.resource_type, len(self.body))
+        self.headers = HEADERS.format(self.resource_type, self.length)
 
     def render_body(self):
         body = None
@@ -27,4 +28,5 @@ class HTTPResponse():
             with open(self.value, 'r') as f:
                 body = f.read()
 
+        self.length = len(body.encode('utf-8'))
         return body

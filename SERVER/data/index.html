@@ -6,7 +6,30 @@
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    <h1>Hello, world!</h1>
+    <div id="search-wrapper">
+        <div id="term-wrapper">
+            <input id="search-term" type="text">
+        </div>
+        <div id="search-by-wrapper">
+            <div id="current-search-by">Termo:</div>
+            <ul id="search-by-list">
+                <li class="search-by-list-item">Unidade</li>
+                <li class="search-by-list-item">N. Contrato</li>
+                <li class="search-by-list-item">CPF/CNPJ</li>
+                <li class="search-by-list-item">Nome</li>
+            </ul>
+        </div>
+    </div>
+    <div id="body-wrapper">
+        <table id="contract-data-table">
+            <tr id="contract-table-header-row">
+                <th class="contract-table-header">Unidade</th>
+                <th class="contract-table-header">N. Contrato</th>
+                <th class="contract-table-header">CPF/CNPJ</th>
+                <th class="contract-table-header">Nome</th>
+            </tr>
+        </table>
+    </div>
     <script src="index.js"></script>
 </body>
 </html>

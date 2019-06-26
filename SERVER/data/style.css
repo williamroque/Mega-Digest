@@ -1,10 +1,155 @@
+/* General */
+
 body, html {
     padding: 0;
     margin: 0;
     width: 100%;
     height: 100%;
+    overflow: hidden;
 }
 
-h1 {
-    color: blue;
+/* Search */
+
+#search-wrapper {
+    width: 80%;
+    height: 35px;
+    padding: 0;
+    position: absolute;
+    left: 50%;
+    top: 50px;
+    transform: translateX(-50%);
+}
+
+#term-wrapper {
+    width: 79%;
+    height: 100%;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    align-items: flex-end;
+    float: left;
+}
+
+#search-term {
+    width: 100%;
+    height: 80%;
+    outline: none;
+    border: none;
+    border-bottom: solid 1px #ccc;
+    padding-bottom: 0;
+    padding-top: 0;
+    padding-left: 15px;
+    padding-right: 15px;
+    font-size: 12pt;
+    font-family: helvetica;
+    letter-spacing: .163em;
+    font-weight: 300;
+}
+
+#search-term:focus {
+    transition-duration: .1s;
+    border-bottom: solid 1px #C0B283;
+}
+
+#search-by-wrapper {
+    width: 19%;
+    height: 100%;
+    padding: 0;
+    float: right;
+}
+
+#current-search-by {
+    width: 100%;
+    height: 100%;
+    font-family: arial;
+    background: #FFF;
+    color: #C0B283;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0;
+    padding: 0;
+    border: solid 1px #C0B283;
+    border-radius: 5px;
+}
+
+.search-by-active {
+    background: #C0B283;
+    color: #FFF;
+}
+
+.search-by-item-active, .search-by-list-item:hover {
+    background: #918661;
+}
+
+#search-by-list {
+    border: solid 1px #C0B283;
+    border-radius: 5px;
+    width: 100%;
+    transform: translateY(2px);
+    list-style: none;
+    width: 100%;
+    padding: 0;
+    padding-right: 1px;
+    margin: 0;
+    display: none;
+}
+
+.search-by-list-active {
+    display: block;
+}
+
+.search-by-list-item {
+    width: 100%;
+    height: 40px;
+    padding: 0;
+    margin: 0;
+    border: none;
+    background: #C0B283;
+    color: #FFF;
+    cursor: pointer;
+    display: flex;
+    font-size: 11pt;
+    font-family: arial;
+    justify-content: center;
+    align-items: center;
+}
+
+/* Data */
+
+#body-wrapper {
+    width: 80%;
+    height: auto;
+    max-height: 500px;
+    padding: 0;
+    position: absolute;
+    top: 170px;
+    left: 50%;
+    transform: translateX(-50%);
+}
+
+#contract-data-table {
+    width: 100%;
+    height: 100%;
+    border-collapse: collapse;
+}
+
+table {
+    table-layout: fixed;
+}
+
+td, th {
+    width: 25%;
+}
+
+#contract-table-header-row {
+    height: 30px;
+    border-bottom: solid 1px #C0B283;
+}
+
+.contract-table-header {
+    font-family: arial;
+    font-size: 12pt;
+    font-weight: normal;
 }

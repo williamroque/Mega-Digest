@@ -42,14 +42,18 @@ class HttpClientThread(threading.Thread):
 
                 response = HTTPResponse('error', 422, 'text/html')
 
-                if request.command == 'GET':
+                if command == 'GET':
                     if os.path.exists('data' + path):
                         if request.path == '/':
-                            response = HTTPResponse('resource', INDEX_PATH, request_type)
+                            response = HTTPResponse('resource', INDEX_PATH, request_type[0])
                         else:
-                            response = HTTPResponse('resource', 'data' + path, request_type)
+                            response = HTTPResponse('resource', 'data' + path, request_type[0])
                     else:
                         response = HTTPResponse('error', 404, 'text/html')
+                elif command == 'POST':
+                    pass
+
+                print(command, path, request_type)
 
                 self.send_http_response(response)
             else:
