@@ -1,17 +1,19 @@
 HEADERS = """
-Content-Type: text/html; encoding=utf8
+Content-Type: {}; encoding=utf8
 Content-Length: {}
 Connection: close
 """
 
 class HTTPResponse():
-    def __init__(self, response_type, response_value):
+    def __init__(self, response_type, response_value, response_resource_type=None):
         self.type = response_type
         self.value = response_value
 
+        self.resource_type = response_resource_type
+
         self.proto = 'HTTP/1.1 {} OK'.format(response_value)
         self.body = self.render_body()
-        self.headers = HEADERS.format(len(self.body))
+        self.headers = HEADERS.format(self.resource_type, len(self.body))
 
     def render_body(self):
         body = None
