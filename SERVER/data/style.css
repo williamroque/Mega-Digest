@@ -124,8 +124,8 @@ body, html {
 
 #body-wrapper {
     width: 80%;
-    height: auto;
-    max-height: 430px;
+    margin-bottom: 100px;
+    min-height: 300px;
     padding: 0;
     position: absolute;
     top: 170px;
@@ -136,11 +136,9 @@ body, html {
 
 #contract-data-table {
     width: 100%;
-    height: 100%;
+    min-height: 300px;
     border-collapse: collapse;
     table-layout: fixed;
-    height: auto;
-    max-height: 430px;
 }
 
 td, th {
@@ -211,7 +209,7 @@ td, th {
     background: #222;
 }
 
-/* Edit inputs */
+/* Edit contract inputs */
 .row-edit-input {
     outline: none;
     border: none;
@@ -221,10 +219,30 @@ td, th {
     font-weight: inherit;
     font-family: inherit;
     letter-spacing: inherit;
-    margin-top: 8px;
 }
 
 .row-edit-input:focus {
     transition-duration: .1s;
     border-bottom: solid 1px #C0B283;
+}
+
+/* Add contract button and prompt */
+#add-button {
+    position: absolute;
+    bottom: 30px;
+    right: 30px;
+    background: #FFF;
+    color: #C0B283;
+    border: solid 1px #C0B283;
+    width: 40px;
+    height: 40px;
+    font-size: 14pt;
+    font-family: arial;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+#add-button:active {
+    color: #FFF;
+    background: #C0B283;
 }

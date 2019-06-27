@@ -107,6 +107,7 @@ editButtonElement.addEventListener('click', e => {
 
 deleteButtonElement.addEventListener('click', () => {
     contactServer('DELETE', currentRow.join(';'));
+    contractDataTBodyElement.removeChild(currentRowElement);
     hideManagePrompt();
 }, false);
 
@@ -149,8 +150,16 @@ function updateTable(orderBy = 'N. Contrato') {
 
                     let x = e.pageX, y = e.pageY;
 
-                    managePromptElement.style.left = x + 'px';
-                    managePromptElement.style.top = y + 'px';
+                    managePromptElement.style.left = (
+                            x + 225 >= window.innerWidth - 10 ?
+                            x - 225 : 
+                            x
+                        ) + 'px';
+                    managePromptElement.style.top = (
+                            y + 110 >= window.innerHeight - 10 ?
+                            y - 110 :
+                            y 
+                        ) + 'px';
                     managePromptElement.style.display = 'block';
 
                     managePromptVisible = true;
@@ -276,4 +285,13 @@ searchTermElement.addEventListener('focusout', () => {
     }
 }, false);
 
+// General close on press ESC
+document.addEventListener('keydown', e => {
+    if (e.key === 'Escape') {
+        if (managePromptVisible)
+            hideManagePrompt();
+        if (searchByListExpanded)
+            hideSearchByList();
+    }
+}, false);
 

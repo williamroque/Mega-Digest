@@ -54,7 +54,8 @@ class HttpClientThread(threading.Thread):
                     else:
                         response = HTTPResponse('error', 404, 'text/html')
                 elif command == 'UPDATE':
-                    with open('data/contract_data.txt', 'a+') as f:
+                    data = ''
+                    with open('data/contract_data.txt', 'r') as f:
                         raw_data = f.read()
 
                         data = raw_data.split('\n')
@@ -66,10 +67,31 @@ class HttpClientThread(threading.Thread):
                                 data[i] = value
                                 break
 
-                        f.truncate()
+                    with open('data/contract_data.txt', 'w') as f:
                         f.write('\n'.join(data))
 
+                    response = HTTPResponse('action-response', 200, 'text/html')
+                elif command == 'DELETE':
+                    data = ''
+                    with open('data/contract_data.txt', 'r') as f:
+                        raw_data = f.read()
+
+                        data = raw_data.split('\n')
+
+                        term = urllib.parse.unquote(path)[1:]
+
+                        for i, row in enumerate(data):
+                            if row == term:
+                                del data[i]
+                                break
+
+                    with open('data/contract_data.txt', 'w') as f:
+                        f.write('\n'.join(data))
+
+                    response = HTTPResponse('action-response', 200, 'text/html')
+
                 self.send_http_response(response)
+
             else:
                 print('Done.')
                 self.connection.close()

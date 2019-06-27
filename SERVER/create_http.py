@@ -21,12 +21,14 @@ class HTTPResponse():
 
         if self.type == 'error':
             if self.value == 404:
-                body = '404: page not found'
+                body = '404: page not found. Stick to the index!'
             else:
-                body = '422: invalid request'
+                body = '422: invalid request. Stop making things up!'
         elif self.type == 'resource':
             with open(self.value, 'r') as f:
                 body = f.read()
+        elif self.type == 'action-response':
+            body = ''
 
         self.length = len(body.encode('utf-8'))
         return body
