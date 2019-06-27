@@ -137,6 +137,8 @@ body, html {
 #contract-data-table {
     width: 100%;
     min-height: 300px;
+    height: auto;
+    max-height: 430px;
     border-collapse: collapse;
     table-layout: fixed;
 }
@@ -162,6 +164,8 @@ td, th {
     font-size: 10pt;
     font-weight: 300;
     letter-spacing: 0.067em;
+    position: absolute;
+    top: 35px;
 }
 
 .contract-table-row {
