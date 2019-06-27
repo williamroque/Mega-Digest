@@ -56,15 +56,24 @@ def pull_contract_data():
 
 remote_contract_data = pull_contract_data()
 
+local_contract_data = ''
+
+dir_path = os.path.dirname(os.path.realpath(__file__))
+contract_data_path = dir_path + '/contract_data.txt'
+with open(contract_data_path, 'r') as f:
+    local_contract_data = f.read()
+
 contract_data_raw = ''
 
 if remote_contract_data:
     contract_data_raw = remote_contract_data
+
+    if remote_contract_data != local_contract_data:
+        print('Updating contract data...')
+        with open(contract_data_path, 'w+') as f:
+            f.write(remote_contract_data)
 else:
-    dir_path = os.path.dirname(os.path.realpath(__file__))
-    contract_data_path = dir_path + '/contract_data.txt'
-    with open(contract_data_path, 'r') as f:
-        contract_data_raw = f.read()
+    contract_data_raw = local_contract_data
 
 contract_data = {}
 
