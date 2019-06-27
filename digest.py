@@ -32,7 +32,7 @@ def pull_contract_data():
         print('Could not connect to server.')
         return
     except IOError as e:
-        if e.errno == ENUTUNREACH:
+        if e.errno == ENETUNREACH:
             print('Client not connected.')
             return
 
