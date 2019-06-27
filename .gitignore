@@ -1,5 +1,5 @@
-GUI/node_modules/
-GUI/dist/
+node_modules/
+dist/
 
 **/.DS_Store
 
