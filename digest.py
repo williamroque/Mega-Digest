@@ -7,6 +7,9 @@ import re
 
 import datetime
 
+import socket
+from errno import ENUTUNREACH
+
 # Excel files
 boletim_file = sys.argv[1]
 
@@ -14,23 +17,69 @@ boletim_file = sys.argv[1]
 bdf = pd.read_excel(boletim_file)
 
 # Get contract data
-dir_path = os.path.dirname(os.path.realpath(__file__))
-contract_data_path = dir_path + '/contract_data.txt'
+data_host = '192.168.25.15'
+data_port = 8888
+
+BUFFER_SIZE = 2000
+
+def pull_contract_data():
+    try:
+        client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        client.settimeout(5)
+        client.connect((host, port))
+        client.setttimeout(None)
+    except socket.timeout:
+        print('Could not connect to server.')
+        return
+    except IOError as e:
+        if e.errno == ENUTUNREACH:
+            print('Client not connected.')
+            return
+
+    mes = b'request_data'
+
+    data = ''
+
+    client.send(mes)
+
+    while True:
+        rec_data = client.recv(BUFFER_SIZE.decode('utf-8'))
+
+        if rec_data[-4:] == 'exit':
+            data += rec_data[:-4]
+            break
+        data += rec_data
+
+    client.close()
+
+    return data.strip()
+
+remote_contract_data = pull_contract_data()
+
+contract_data_raw = ''
+
+if remote_contract_data:
+    contract_data_raw = remote_contract_data
+else:
+    dir_path = os.path.dirname(os.path.realpath(__file__))
+    contract_data_path = dir_path + '/contract_data.txt'
+    with open(contract_data_path, 'r') as f:
+        contract_data_raw = f.read()
+
 contract_data = {}
 
-with open(contract_data_path, 'r') as f:
-    for line in f:
-        line_data = line.split(';')
-        *line_data, line_name = line_data
-        line_name = line_name.strip()
-        if not line_name in contract_data:
-            contract_data[line_name] = [line_data]
-        else:
-            contract_data[line_name].append(line_data)
+for line in contract_data_raw:
+    line_data = line.split(';')
+    *line_data, line_name = line_data
+    line_name = line_name.strip()
+    if not line_name in contract_data:
+        contract_data[line_name] = [line_data]
+    else:
+        contract_data[line_name].append(line_data)
 
-if contract_data == []:
+if contract_data == {}:
     print('Unable to read contract data')
-    sys.exit()
+    sys.exit(0)
 
 # Compile raw data
 
@@ -126,7 +175,7 @@ while bdf_title_col < bdf_title_max:
 for col in bdf_data_cols:
     if not bdf_data_cols[col]:
         print('Requires', col, 'data')
-        sys.exit()
+        sys.exit(0)
 
 # Bdf data
 bdf_client_data = {}
