@@ -22,6 +22,8 @@ class HTTPResponse():
         if self.type == 'error':
             if self.value == 404:
                 body = '404: page not found. Stick to the index!'
+            elif self.value == 501:
+                body = 'row-not-found'
             else:
                 body = '422: invalid request. Stop making things up!'
         elif self.type == 'resource':

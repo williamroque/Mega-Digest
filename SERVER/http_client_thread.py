@@ -55,6 +55,8 @@ class HttpClientThread(threading.Thread):
                         response = HTTPResponse('error', 404, 'text/html')
                 elif command == 'UPDATE':
                     data = ''
+                    exited_with_error = False
+
                     with open('data/contract_data.txt', 'r') as f:
                         raw_data = re.sub('\n{2,}', '\n', f.read())
 
@@ -66,13 +68,19 @@ class HttpClientThread(threading.Thread):
                             if row == term:
                                 data[i] = value
                                 break
+                        else:
+                            response = HTTPResponse('error', 501, 'text/plain')
+                            exited_with_error = True
 
-                    with open('data/contract_data.txt', 'w') as f:
-                        f.write('\n'.join(data))
+                    if not exited_with_error:
+                        with open('data/contract_data.txt', 'w') as f:
+                                f.write('\n'.join(data))
+                                response = HTTPResponse('action-response', 200, 'text/plain')
 
-                    response = HTTPResponse('action-response', 200, 'text/html')
                 elif command == 'DELETE':
                     data = ''
+                    exited_with_error = False
+
                     with open('data/contract_data.txt', 'r') as f:
                         raw_data = f.read()
 
@@ -84,11 +92,15 @@ class HttpClientThread(threading.Thread):
                             if row == term:
                                 del data[i]
                                 break
+                        else:
+                            exited_with_error = True
+                            response = HTTPResponse('error', 501, 'text/plain')
 
-                    with open('data/contract_data.txt', 'w') as f:
-                        f.write('\n'.join(data))
+                    if not exited_with_error:
+                        with open('data/contract_data.txt', 'w') as f:
+                                f.write('\n'.join(data))
+                                response = HTTPResponse('action-response', 200, 'text/plain')
 
-                    response = HTTPResponse('action-response', 200, 'text/html')
                 elif command == 'ADD':
                     data = ''
                     with open('data/contract_data.txt', 'r') as f:
@@ -97,10 +109,10 @@ class HttpClientThread(threading.Thread):
                         data = raw_data.split('\n')
                         data.append(urllib.parse.unquote(path)[1:])
 
-                    with open('data/contract_data.txt', 'w') as f:
+                    with open('data/contract_data.txt', 'w+') as f:
                         f.write('\n'.join(data))
 
-                    response = HTTPResponse('action-response', 200, 'text/html')
+                    response = HTTPResponse('action-response', 200, 'text/plain')
 
                 self.send_http_response(response)
 

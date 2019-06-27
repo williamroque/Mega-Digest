@@ -42,18 +42,21 @@ let managePromptVisible = false;
 let currentRow;
 let currentRowElement;
 
+// Currently selected row values before editing
+let currentRowValues;
+
 // Determine whether the user is editing a row
 let isEditing;
 
 // Keep track of current search by term option
-let currentSearchBy = '';
+let currentSearchByItem = '';
 
 // Send and receive HTTP requests to and from the server
 function contactServer(requestType, request) {
     return new Promise((resolve, reject) => {
         const xhttp = new XMLHttpRequest();
         xhttp.onreadystatechange = () => {
-            if (xhttp.status === 200 && xhttp.readyState === 4) {
+            if (xhttp.readyState === 4) {
                 resolve(xhttp.responseText);
             }
         };
@@ -62,11 +65,11 @@ function contactServer(requestType, request) {
         try {
             xhttp.send();
         } catch(e) {
-            reject();
+            reject(e);
         }
     });
-}
 
+}
 // Show blocking prompt with a message
 function showBlockingPrompt(body) {
     blockingPromptVisibleElement.checked = true;
@@ -182,11 +185,23 @@ addButtonElement.addEventListener('click', e => {
     showBlockingPrompt(table);
 }, false);
 
+// Replace update inputs with table columns
+function leaveEditingMode(columns) {
+    isEditing = false;
+    currentRowElement.childNodes.forEach((column, i) => {
+        const text = document.createTextNode(columns[i]);
+
+        clearChildren(column);
+        column.appendChild(text);
+    });
+}
+
 // Event listeners for the manage prompt buttons
 editButtonElement.addEventListener('click', e => {
     // Change columns to inputs and send an HTTP request detailing update data if anything was changed
     isEditing = true;
 
+    currentRowValues = [];
     const columnNodes = currentRowElement.childNodes;
 
     columnNodes.forEach(node => {
@@ -196,35 +211,42 @@ editButtonElement.addEventListener('click', e => {
         input.setAttribute('class', 'row-edit-input');
         input.setAttribute('value', node.innerText);
 
-        input.addEventListener('keydown', e => {
-            if (e.key === 'Enter') {
-                const columnElements = currentRowElement.childNodes;
-                
-                let columns = [];
-                for (let i = 0; i < columnElements.length; i++) {
-                    columns.push(
-                        columnElements[i].childNodes[0].value
-                        .replace(';', '')
-                        .replace('=', '')
-                    );
-                }
+        currentRowValues.push(node.innerText);
 
+        input.addEventListener('keydown', e => {
+            if (e.key !== 'Enter' && e.key !== 'Escape')
+                return;
+
+            const columnElements = currentRowElement.childNodes;
+
+            let columns = [];
+            for (let i = 0; i < columnElements.length; i++) {
+                columns.push(
+                    columnElements[i].childNodes[0].value
+                    .replace(';', '')
+                    .replace('=', '')
+                );
+            }
+
+            if (e.key === 'Enter') {
                 if (columns.some((column, i) => column !== currentRow[i])) {
                     contactServer(
                         'UPDATE', 
                         currentRow.join(';') + '=' + columns.join(';')
-                    ).then(() => {
-                        isEditing = false;
-                        currentRowElement.childNodes.forEach((column, i) => {
-                            const text = document.createTextNode(columns[i]);
-
-                            clearChildren(column);
-                            column.appendChild(text);
-                        });
-                    }).catch(() => {
+                    ).then(response => {
+                        if (response === 'row-not-found') {
+                            updateTable(currentSearchByItem.innerText);
+                        } else {
+                            leaveEditingMode(columns);
+                        }
+                    }).catch(e => {
                         connectionHalt();
                     });
+                } else {
+                    leaveEditingMode(columns);
                 }
+            } else if (e.key === 'Escape') {
+                leaveEditingMode(currentRowValues);
             }
         }, false);
 
@@ -236,8 +258,12 @@ editButtonElement.addEventListener('click', e => {
 }, false);
 
 deleteButtonElement.addEventListener('click', () => {
-    contactServer('DELETE', currentRow.join(';')).then(() => {
-        contractDataTBodyElement.removeChild(currentRowElement);
+    contactServer('DELETE', currentRow.join(';')).then(response => {
+        if (response === 'row-not-found') {
+            updateTable(currentSearchByItem.innerText);
+        } else {
+            contractDataTBodyElement.removeChild(currentRowElement);
+        }
     }).catch(() => {
         connectionHalt();
     });
@@ -364,12 +390,12 @@ document.addEventListener('click', e => {
 // Add event for option selection to each search by list item
 searchByListItems.forEach(item => {
     item.addEventListener('click', e => {
-        if (currentSearchBy) {
-            currentSearchBy.classList.remove('search-by-item-active');
+        if (currentSearchByItem) {
+            currentSearchByItem.classList.remove('search-by-item-active');
         }
-        currentSearchBy = e.target;
-        currentSearchBy.classList.add('search-by-item-active');
-        currentSearchByElement.innerText = currentSearchBy.innerText;
+        currentSearchByItem = e.target;
+        currentSearchByItem.classList.add('search-by-item-active');
+        currentSearchByElement.innerText = currentSearchByItem.innerText;
 
     }, false);
 });
@@ -387,7 +413,7 @@ currentSearchByElement.addEventListener('click', e => {
 // Search through data and update the table
 function searchData() {
     searchTerm = searchTermElement.value;
-    searchBy = currentSearchBy.innerText;
+    searchBy = currentSearchByItem.innerText;
 
     if (searchTerm) {
         dataRenderBuffer = data.filter(row => {
@@ -402,7 +428,7 @@ function searchData() {
 
 // Search data on press enter
 searchTermElement.addEventListener('keydown', e => {
-    if (e.key === 'Enter' && currentSearchBy) {
+    if (e.key === 'Enter' && currentSearchByItem) {
         searchData();
     }
 }, false);
