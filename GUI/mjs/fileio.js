@@ -32,7 +32,6 @@ class FileIO {
         this.configSet = false;
         if (
             fs.existsSync(this.path) &&
-            fs.existsSync(this.cDataPath) &&
             fs.existsSync(this.scriptFilePath)
         ) {
             this.configSet = true;
