@@ -8,7 +8,7 @@ import re
 import datetime
 
 import socket
-from errno import ENUTUNREACH
+from errno import ENETUNREACH
 
 # Excel files
 boletim_file = sys.argv[1]
@@ -26,8 +26,8 @@ def pull_contract_data():
     try:
         client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         client.settimeout(5)
-        client.connect((host, port))
-        client.setttimeout(None)
+        client.connect((data_host, data_port))
+        client.settimeout(None)
     except socket.timeout:
         print('Could not connect to server.')
         return
@@ -43,7 +43,7 @@ def pull_contract_data():
     client.send(mes)
 
     while True:
-        rec_data = client.recv(BUFFER_SIZE.decode('utf-8'))
+        rec_data = client.recv(BUFFER_SIZE).decode('utf-8')
 
         if rec_data[-4:] == 'exit':
             data += rec_data[:-4]
@@ -60,8 +60,10 @@ local_contract_data = ''
 
 dir_path = os.path.dirname(os.path.realpath(__file__))
 contract_data_path = dir_path + '/contract_data.txt'
-with open(contract_data_path, 'r') as f:
-    local_contract_data = f.read()
+
+if os.path.exists(contract_data_path):
+    with open(contract_data_path, 'r+') as f:
+        local_contract_data = f.read()
 
 contract_data_raw = ''
 
@@ -77,7 +79,7 @@ else:
 
 contract_data = {}
 
-for line in contract_data_raw:
+for line in contract_data_raw.split('\n'):
     line_data = line.split(';')
     *line_data, line_name = line_data
     line_name = line_name.strip()
@@ -86,7 +88,7 @@ for line in contract_data_raw:
     else:
         contract_data[line_name].append(line_data)
 
-if contract_data == {}:
+if not contract_data:
     print('Unable to read contract data')
     sys.exit(0)
 
