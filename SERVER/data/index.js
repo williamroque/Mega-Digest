@@ -9,12 +9,24 @@ const searchByListItems = document.querySelectorAll('.search-by-list-item');
 // Contract data table element
 const contractDataTBodyElement = document.querySelector('#contract-table-body');
 
+// Blocking prompt element
+const blockingPromptElement = document.querySelector('#blocking-prompt');
+
+// Method for letting CSS know that the blocking prompt is visible
+const blockingPromptVisibleElement = document.querySelector('#blocking-prompt-visible');
+
 // Edit/delete prompt
 const managePromptElement = document.querySelector('#manage-prompt');
 
 // Edit/delete prompt buttons
 const editButtonElement = document.querySelector('#edit-button');
 const deleteButtonElement = document.querySelector('#delete-button');
+
+// Add contract button
+const addButtonElement = document.querySelector('#add-button');
+
+// Keep track of blocking prompt visibility
+let isAddingContract = false;
 
 // Keep track of search by term option list
 let searchByListExpanded = false;
@@ -38,7 +50,7 @@ let currentSearchBy = '';
 
 // Send and receive HTTP requests to and from the server
 function contactServer(requestType, request) {
-    return new Promise((resolve, _) => {
+    return new Promise((resolve, reject) => {
         const xhttp = new XMLHttpRequest();
         xhttp.onreadystatechange = () => {
             if (xhttp.status === 200 && xhttp.readyState === 4) {
@@ -46,8 +58,47 @@ function contactServer(requestType, request) {
             }
         };
         xhttp.open(requestType, request);
-        xhttp.send();
+
+        try {
+            xhttp.send();
+        } catch(e) {
+            reject();
+        }
     });
+}
+
+// Show blocking prompt with a message
+function showBlockingPrompt(body) {
+    blockingPromptVisibleElement.checked = true;
+
+    blockingPromptElement.appendChild(body);
+
+    blockingPromptElement.style.display = 'flex';
+}
+
+// Hide blocking prompt
+function hideBlockingPrompt() {
+    blockingPromptVisibleElement.checked = false;
+
+    isAddingContract = false;
+
+    clearChildren(blockingPromptElement);
+
+    blockingPromptElement.style.display = 'none';
+}
+
+// Halt page if the connection is lost
+function connectionHalt() {
+    const errorMessage = document.createTextNode( 'N\u00E3o foi poss\u00EDvel se comunicar com o servidor. Por favor, verifique sua conex\u00E3o.');
+    
+    document.addEventListener('click', e => {
+        e.preventDefault();
+        e.stopPropagation();
+    }, false);
+
+    blockingPromptElement.setAttribute('class', 'halted');
+
+    showBlockingPrompt(errorMessage);
 }
 
 // Remove obsolete children
@@ -56,6 +107,80 @@ function clearChildren(node) {
     while (firstChild = node.firstChild)
         node.removeChild(firstChild);
 }
+
+// Show add prompt on add button press
+addButtonElement.addEventListener('click', e => {
+    e.stopPropagation();
+
+    isAddingContract = true;
+
+    const table = document.createElement('TABLE');
+    table.setAttribute('id', 'add-table');
+
+    const headerRow = document.createElement('TR');
+    const headers = ['Unidade', 'N. Contrato', 'CPF/CNPJ', 'Nome'];
+
+    headers.forEach(header => {
+        const headerElement = document.createElement('TH');
+        const headerText = document.createTextNode(header);
+
+        headerElement.setAttribute('class', 'add-table-header');
+
+        headerElement.appendChild(headerText);
+        headerRow.appendChild(headerElement);
+    });
+
+    table.appendChild(headerRow);
+
+    const inputRow = document.createElement('TR');
+    
+    headers.forEach(_ => {
+        const columnElement = document.createElement('TD');
+        const inputElement = document.createElement('INPUT');
+        
+        inputElement.setAttribute('type', 'text');
+        inputElement.setAttribute('class', 'add-input');
+
+        inputElement.addEventListener('keydown', e => {
+            if (e.key === 'Enter') {
+                const columns = document.querySelectorAll('.add-input');
+
+                let dataRow = [];
+                for (let i = 0; i < columns.length; i++) {
+                    let column = columns[i].value;
+
+                    if (!column) return;
+                    dataRow.push(column);
+                }
+
+                contactServer('ADD', dataRow.join(';')).then(() => {
+                    const rowElement = document.createElement('TR');
+                    rowElement.setAttribute('class', 'contract-data-row');
+
+                    dataRow.forEach(column => {
+                        const columnElement = document.createElement('TD');
+                        const columnText = document.createTextNode(column);
+
+                        columnElement.appendChild(columnText);
+                        rowElement.appendChild(columnElement);
+                    });
+
+                    contractDataTBodyElement.prepend(rowElement);
+                    hideBlockingPrompt();
+                }).catch(() => {
+                    connectionHalt();
+                });
+            }
+        }, false);
+
+        columnElement.appendChild(inputElement);
+        inputRow.appendChild(columnElement);
+    });
+
+    table.appendChild(inputRow);
+
+    showBlockingPrompt(table);
+}, false);
 
 // Event listeners for the manage prompt buttons
 editButtonElement.addEventListener('click', e => {
@@ -85,16 +210,21 @@ editButtonElement.addEventListener('click', e => {
                 }
 
                 if (columns.some((column, i) => column !== currentRow[i])) {
-                    contactServer('UPDATE', currentRow.join(';') + '=' + columns.join(';'));
+                    contactServer(
+                        'UPDATE', 
+                        currentRow.join(';') + '=' + columns.join(';')
+                    ).then(() => {
+                        isEditing = false;
+                        currentRowElement.childNodes.forEach((column, i) => {
+                            const text = document.createTextNode(columns[i]);
+
+                            clearChildren(column);
+                            column.appendChild(text);
+                        });
+                    }).catch(() => {
+                        connectionHalt();
+                    });
                 }
-
-                isEditing = false;
-                currentRowElement.childNodes.forEach((column, i) => {
-                    const text = document.createTextNode(columns[i]);
-
-                    clearChildren(column);
-                    column.appendChild(text);
-                });
             }
         }, false);
 
@@ -106,8 +236,11 @@ editButtonElement.addEventListener('click', e => {
 }, false);
 
 deleteButtonElement.addEventListener('click', () => {
-    contactServer('DELETE', currentRow.join(';'));
-    contractDataTBodyElement.removeChild(currentRowElement);
+    contactServer('DELETE', currentRow.join(';')).then(() => {
+        contractDataTBodyElement.removeChild(currentRowElement);
+    }).catch(() => {
+        connectionHalt();
+    });
     hideManagePrompt();
 }, false);
 
@@ -181,10 +314,8 @@ function updateTable(orderBy = 'N. Contrato') {
         });
 }
 
-// Asynchronously contact server and retrieve data
-async function requestData() {
-    const rawData = await contactServer('GET', '/contract_data.txt');
-
+// Asynchronously contact server and retrieve contract data
+contactServer('GET', '/contract_data.txt').then(rawData => {
     let dataRows = rawData.trim().split('\n');
 
     // Organize data into rows of objects
@@ -200,8 +331,10 @@ async function requestData() {
 
     dataRenderBuffer = data;
     updateTable();
-}
-requestData();
+}).catch(() => {
+    connectionHalt();
+});
+
 
 // Hide list of search by options
 function hideSearchByList() {
@@ -292,6 +425,8 @@ document.addEventListener('keydown', e => {
             hideManagePrompt();
         if (searchByListExpanded)
             hideSearchByList();
+        if (isAddingContract)
+            hideBlockingPrompt();
     }
 }, false);
 

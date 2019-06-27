@@ -56,7 +56,7 @@ class HttpClientThread(threading.Thread):
                 elif command == 'UPDATE':
                     data = ''
                     with open('data/contract_data.txt', 'r') as f:
-                        raw_data = f.read()
+                        raw_data = re.sub('\n{2,}', '\n', f.read())
 
                         data = raw_data.split('\n')
 
@@ -84,6 +84,18 @@ class HttpClientThread(threading.Thread):
                             if row == term:
                                 del data[i]
                                 break
+
+                    with open('data/contract_data.txt', 'w') as f:
+                        f.write('\n'.join(data))
+
+                    response = HTTPResponse('action-response', 200, 'text/html')
+                elif command == 'ADD':
+                    data = ''
+                    with open('data/contract_data.txt', 'r') as f:
+                        raw_data = f.read()
+
+                        data = raw_data.split('\n')
+                        data.append(urllib.parse.unquote(path)[1:])
 
                     with open('data/contract_data.txt', 'w') as f:
                         f.write('\n'.join(data))

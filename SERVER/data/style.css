@@ -226,7 +226,7 @@ td, th {
     border-bottom: solid 1px #C0B283;
 }
 
-/* Add contract button and prompt */
+/* Add contract button */
 #add-button {
     position: absolute;
     bottom: 30px;
@@ -245,4 +245,59 @@ td, th {
 #add-button:active {
     color: #FFF;
     background: #C0B283;
+}
+
+/* Blocking prompt */
+#blocking-prompt {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+    background: #0a0a0a;
+    padding: 50px;
+    width: 70%;
+    align-items: center;
+    justify-content: center;
+    display: none;
+    color: white;
+    font-family: helvetica;
+    z-index: 3;
+}
+
+#blocking-prompt-visible {
+    display: none;
+}
+
+#blocking-prompt-visible:checked~* {
+    filter: blur(5px);
+}
+
+.halted {
+    width: auto;
+}
+
+/* Add contract table */
+#add-table {
+    width: 100%;
+    height: 70px;
+}
+
+.add-table-header {
+    font-weight: normal;
+}
+
+.add-input {
+    outline: none;
+    border: none;
+    border-bottom: solid 1px #CCC;
+    background: transparent;
+    color: white;
+    width: 96%;
+    padding-left: 5px;
+    padding-right: 5px;
+    box-sizing: border-box;
+    font-size: 11pt;
+    font-family: helvetica;
+    font-weight: 300;
+    letter-spacing: .06em;
 }
