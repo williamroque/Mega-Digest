@@ -1,3 +1,5 @@
+import re
+
 HEADERS = """
 Content-Type: {}; encoding=utf8
 Content-Length: {}
@@ -28,7 +30,7 @@ class HTTPResponse():
                 body = '422: invalid request. Stop making things up!'
         elif self.type == 'resource':
             with open(self.value, 'r') as f:
-                body = f.read()
+                body = re.sub('\n{2,}', '\n', f.read())
         elif self.type == 'action-response':
             body = ''
 

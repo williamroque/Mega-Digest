@@ -106,7 +106,7 @@ class HttpClientThread(threading.Thread):
                     with open('data/contract_data.txt', 'r') as f:
                         raw_data = f.read()
 
-                        data = raw_data.split('\n')
+                        data = raw_data.strip().split('\n')
                         data.append(urllib.parse.unquote(path)[1:])
 
                     with open('data/contract_data.txt', 'w+') as f:

@@ -158,7 +158,7 @@ addButtonElement.addEventListener('click', e => {
 
                 contactServer('ADD', dataRow.join(';')).then(() => {
                     const rowElement = document.createElement('TR');
-                    rowElement.setAttribute('class', 'contract-data-row');
+                    rowElement.setAttribute('class', 'contract-table-row');
 
                     dataRow.forEach(column => {
                         const columnElement = document.createElement('TD');
@@ -412,8 +412,8 @@ currentSearchByElement.addEventListener('click', e => {
 
 // Search through data and update the table
 function searchData() {
-    searchTerm = searchTermElement.value;
-    searchBy = currentSearchByItem.innerText;
+    const searchTerm = searchTermElement.value;
+    const searchBy = currentSearchByItem.innerText;
 
     if (searchTerm) {
         dataRenderBuffer = data.filter(row => {
