@@ -49,7 +49,7 @@ let currentRowValues;
 let isEditing;
 
 // Keep track of current search by term option
-let currentSearchByItem = '';
+let currentSearchByItem = searchByListElement.childNodes[1];
 
 // Send and receive HTTP requests to and from the server
 function contactServer(requestType, request) {
@@ -161,6 +161,14 @@ addButtonElement.addEventListener('click', e => {
                     const rowElement = document.createElement('TR');
                     rowElement.setAttribute('class', 'contract-table-row');
 
+                    const [unidade, contrato, documento, nome] = dataRow;
+                    console.log(data.push({
+                        'Unidade': unidade,
+                        'N. Contrato': contrato,
+                        'CPF/CNPJ': documento,
+                        'Nome': nome
+                    }));
+
                     dataRow.forEach(column => {
                         const columnElement = document.createElement('TD');
                         const columnText = document.createTextNode(column);
@@ -236,8 +244,9 @@ editButtonElement.addEventListener('click', e => {
                         currentRow.join(';') + '=' + columns.join(';')
                     ).then(response => {
                         if (response === 'row-not-found') {
-                            updateTable(currentSearchByItem.innerText);
+                            updateTable();
                         } else {
+                            collectData();
                             leaveEditingMode(columns);
                         }
                     }).catch(e => {
@@ -261,7 +270,7 @@ editButtonElement.addEventListener('click', e => {
 deleteButtonElement.addEventListener('click', () => {
     contactServer('DELETE', currentRow.join(';')).then(response => {
         if (response === 'row-not-found') {
-            updateTable(currentSearchByItem.innerText);
+            updateTable();
         } else {
             contractDataTBodyElement.removeChild(currentRowElement);
         }
@@ -278,7 +287,9 @@ function hideManagePrompt() {
 }
 
 // Update contract data table
-function updateTable(orderBy = 'N. Contrato') {
+function updateTable() {
+    const orderBy = currentSearchByItem.innerText;
+
     // Clear contract data table body
     clearChildren(contractDataTBodyElement);
 
@@ -342,25 +353,28 @@ function updateTable(orderBy = 'N. Contrato') {
 }
 
 // Asynchronously contact server and retrieve contract data
-contactServer('GET', '/contract_data.txt').then(rawData => {
-    let dataRows = rawData.trim().split('\n');
+function collectData() {
+    contactServer('GET', '/contract_data.txt').then(rawData => {
+        let dataRows = rawData.trim().split('\n');
 
-    // Organize data into rows of objects
-    dataRows.forEach(row => {
-        [unidade, contrato, documento, nome] = row.split(';');
-        data.push({
-            'Unidade': unidade,
-            'N. Contrato': contrato,
-            'CPF/CNPJ': documento,
-            'Nome': nome
+        // Organize data into rows of objects
+        dataRows.forEach(row => {
+            [unidade, contrato, documento, nome] = row.split(';');
+            data.push({
+                'Unidade': unidade,
+                'N. Contrato': contrato,
+                'CPF/CNPJ': documento,
+                'Nome': nome
+            });
         });
-    });
 
-    dataRenderBuffer = data;
-    updateTable();
-}).catch(() => {
-    connectionHalt();
-});
+        dataRenderBuffer = data;
+        updateTable();
+    }).catch(e => {
+        connectionHalt();
+    });
+}
+collectData();
 
 // Hide list of search by options
 function hideSearchByList() {
@@ -419,10 +433,10 @@ function searchData() {
         dataRenderBuffer = data.filter(row => {
             return row[searchBy].toLowerCase().indexOf(searchTerm.toLowerCase()) !== -1;
         });
-        updateTable(searchBy);
+        updateTable();
     } else {
         dataRenderBuffer = data;
-        updateTable(searchBy);
+        updateTable();
     }
 }
 
