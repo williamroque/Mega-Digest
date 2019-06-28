@@ -7,6 +7,19 @@ html, body {
     border: none;
 }
 
+#move-bar {
+    position: absolute;
+    top: 0;
+    left: 0;
+    z-index: 0;
+    width: 100%;
+    height: 50px;
+    background: transparent;
+    opacity: 0;
+    -webkit-user-select: none;
+    -webkit-app-region: drag;
+}
+
 #boletimWrapper {
     width: 100%;
     height: 100%;
