@@ -7,7 +7,8 @@
         "appId": "com.ethos.MegaPaysageDigest",
         "mac": {
             "target": "dmg",
-            "icon": "assets/icon.png"
+            "icon": "assets/icon.png",
+            "darkModeSupport": true
         },
         "win": {
             "target": "nsis",
