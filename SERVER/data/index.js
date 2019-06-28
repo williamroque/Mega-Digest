@@ -70,6 +70,7 @@ function contactServer(requestType, request) {
     });
 
 }
+
 // Show blocking prompt with a message
 function showBlockingPrompt(body) {
     blockingPromptVisibleElement.checked = true;
@@ -360,7 +361,6 @@ contactServer('GET', '/contract_data.txt').then(rawData => {
 }).catch(() => {
     connectionHalt();
 });
-
 
 // Hide list of search by options
 function hideSearchByList() {
