@@ -169,14 +169,14 @@ addButtonElement.addEventListener('click', e => {
                         'Nome': nome
                     });
 
-                    console.log(nome);
-
                     dataRow.forEach(column => {
                         const columnElement = document.createElement('TD');
                         const columnText = document.createTextNode(column);
 
                         columnElement.appendChild(columnText);
                         rowElement.appendChild(columnElement);
+
+                        rowElement.addEventListener('click', handleRowClick, false);
                     });
 
                     contractDataTBodyElement.prepend(rowElement);
@@ -275,8 +275,13 @@ deleteButtonElement.addEventListener('click', () => {
             updateTable();
         } else {
             contractDataTBodyElement.removeChild(currentRowElement);
+            data = data.filter(row => {
+                return !Object.values(row).every((col, i) => {
+                    return col === currentRow[i];
+                });
+            });
         }
-    }).catch(() => {
+    }).catch((e) => {
         connectionHalt();
     });
     hideManagePrompt();
@@ -286,6 +291,36 @@ deleteButtonElement.addEventListener('click', () => {
 function hideManagePrompt() {
     managePromptVisible = false;
     managePromptElement.style.display = 'none';
+}
+
+// Handler for row click event
+function handleRowClick(e) {
+    e.stopPropagation();
+    if (!isEditing) {
+        const columnNodes = e.target.parentNode.childNodes;
+
+        currentRow = [];
+        for (let i = 0; i < columnNodes.length; i++) {
+            currentRow.push(columnNodes[i].innerText);
+        }
+        currentRowElement = e.target.parentNode;
+
+        let x = e.pageX, y = e.pageY;
+
+        managePromptElement.style.left = (
+            x + 225 >= window.innerWidth - 10 ?
+            x - 225 : 
+            x
+        ) + 'px';
+        managePromptElement.style.top = (
+            y + 110 >= window.innerHeight - 10 ?
+            y - 110 :
+            y 
+        ) + 'px';
+        managePromptElement.style.display = 'block';
+
+        managePromptVisible = true;
+    }
 }
 
 // Update contract data table
@@ -310,34 +345,7 @@ function updateTable() {
             rowElement.setAttribute('class', 'contract-table-row');
 
             // Show managing prompt on row click and update current row values
-            rowElement.addEventListener('click', e => {
-                e.stopPropagation();
-                if (!isEditing) {
-                    const columnNodes = e.target.parentNode.childNodes;
-
-                    currentRow = [];
-                    for (let i = 0; i < columnNodes.length; i++) {
-                        currentRow.push(columnNodes[i].innerText);
-                    }
-                    currentRowElement = e.target.parentNode;
-
-                    let x = e.pageX, y = e.pageY;
-
-                    managePromptElement.style.left = (
-                            x + 225 >= window.innerWidth - 10 ?
-                            x - 225 : 
-                            x
-                        ) + 'px';
-                    managePromptElement.style.top = (
-                            y + 110 >= window.innerHeight - 10 ?
-                            y - 110 :
-                            y 
-                        ) + 'px';
-                    managePromptElement.style.display = 'block';
-
-                    managePromptVisible = true;
-                }
-            }, false);
+            rowElement.addEventListener('click', handleRowClick, false);
 
             // Set each column in row element to the corresponding data column
             for (let i in row) {
