@@ -95,10 +95,10 @@ if not contract_data:
 # Compile raw data
 
 # Is client name
-is_name = re.compile('\d+ - .+')
+is_name = re.compile('^\d+ - .+')
 
 # Get name from name cell
-strip_unidade = lambda x: re.sub('.*?-\s?', '', x)
+strip_unidade = lambda x: re.sub('^.*?-\s?', '', x)
 
 # Get lote number from name
 match_unidade = re.compile('\d+')
