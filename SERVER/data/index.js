@@ -162,12 +162,14 @@ addButtonElement.addEventListener('click', e => {
                     rowElement.setAttribute('class', 'contract-table-row');
 
                     const [unidade, contrato, documento, nome] = dataRow;
-                    console.log(data.push({
+                    data.push({
                         'Unidade': unidade,
                         'N. Contrato': contrato,
                         'CPF/CNPJ': documento,
                         'Nome': nome
-                    }));
+                    });
+
+                    console.log(nome);
 
                     dataRow.forEach(column => {
                         const columnElement = document.createElement('TD');
@@ -353,8 +355,9 @@ function updateTable() {
 }
 
 // Asynchronously contact server and retrieve contract data
-function collectData() {
+function collectData(firstTime = false) {
     contactServer('GET', '/contract_data.txt').then(rawData => {
+        data = [];
         let dataRows = rawData.trim().split('\n');
 
         // Organize data into rows of objects
@@ -368,13 +371,17 @@ function collectData() {
             });
         });
 
-        dataRenderBuffer = data;
+        if (firstTime) {
+            dataRenderBuffer = data;
+        } else {
+            searchData();
+        }
         updateTable();
     }).catch(e => {
         connectionHalt();
     });
 }
-collectData();
+collectData(true);
 
 // Hide list of search by options
 function hideSearchByList() {
