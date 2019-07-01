@@ -13,6 +13,9 @@ const { ipcMain } = require('electron');
 // Python communication
 const shell = require('shelljs');
 
+// Native shell for file opening
+const nShell = require('electron').shell;
+
 // Set up file I/O module
 const FileIO = require('./fileio');
 fileio = new FileIO();
@@ -43,12 +46,14 @@ function runScript(willQuit, args) {
             output = output.toString();
 
             if (output) {
-                console.log(output);
                 if (output.trim() === 'username_error' || output.trim() === 'password_error') {
                     willQuit = false;
                     resolve(2);
                 } else {
-                    fileio.writeData(output, appData + '/Mega Paysage Digest/output.txt');
+                    const outputPath = appData + '/Mega Paysage Digest/output.txt';
+
+                    fileio.writeData(output, outputPath);
+                    nShell.openItem(outputPath);
                 }
             }
         });
