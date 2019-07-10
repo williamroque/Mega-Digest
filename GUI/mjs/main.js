@@ -58,6 +58,10 @@ function runScript(willQuit, args) {
             }
         });
 
+        process.stdout.on('error', err => {
+            console.log('Error:', err);
+        });
+
         process.on('exit', () => {
             console.log('FINISHED');
             if (willQuit) {
@@ -74,8 +78,6 @@ function runScript(willQuit, args) {
             }
             resolve(0);
         });
-
-        process.on('error', err => console.log(err));
     });
 }
 

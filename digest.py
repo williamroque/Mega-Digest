@@ -38,21 +38,21 @@ def pull_contract_data():
 
     mes = b'request_data'
 
-    data = ''
+    data = b''
 
     client.send(mes)
 
     while True:
-        rec_data = client.recv(BUFFER_SIZE).decode('utf-8')
+        rec_data = client.recv(BUFFER_SIZE)
 
-        if rec_data[-4:] == 'exit':
+        if rec_data[-4:] == b'exit':
             data += rec_data[:-4]
             break
         data += rec_data
 
     client.close()
 
-    return data.strip()
+    return data.strip().decode('utf-8')
 
 remote_contract_data = pull_contract_data()
 
