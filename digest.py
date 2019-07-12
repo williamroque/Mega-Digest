@@ -193,7 +193,7 @@ bdf_client_data = {}
 bdf_row = 19
 
 # For determining whether the 'parcela' type is partial
-not_partial = ['dinheiro', 'banco']
+not_partial = ['dinheiro', 'banco', 'cheque', 'ted']
 is_partial = False
 
 # For each bdf row
