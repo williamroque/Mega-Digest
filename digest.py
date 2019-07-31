@@ -141,6 +141,7 @@ for client in contract_data:
 
 # Determine bdf data dimensions
 bdf_dim = bdf.shape
+
 bdf_height = bdf_dim[0]
 bdf_width = bdf_dim[1]
 
@@ -268,8 +269,7 @@ while bdf_row < bdf_height:
                 break
         else:
             bdf_row += 1
-            is_continue = True
-            break
+            continue
     else:
         print(name, 'not in contract data')
         bdf_row += 1
