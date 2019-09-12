@@ -26,6 +26,8 @@ class HTTPResponse():
                 body = '404: page not found. Stick to the index!'
             elif self.value == 501:
                 body = 'row-not-found'
+            elif self.value == 418:
+                body = 'i-am-a-teapot'
             else:
                 body = '422: invalid request. Stop making things up!'
         elif self.type == 'resource':

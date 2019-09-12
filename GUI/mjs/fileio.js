@@ -10,10 +10,6 @@ const app = require('electron').app;
 // Get install updates script
 const pScript = require('./pscript').script;
 
-// Get platform
-const process = require('process');
-const platform = process.platform;
-
 class FileIO {
     constructor() {
         // Appdata path

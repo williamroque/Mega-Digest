@@ -8,6 +8,10 @@ import mimetypes
 import re
 import os
 
+import manage_users
+
+import json
+
 INDEX_PATH = 'data/index.html'
 
 class HttpClientThread(threading.Thread):
@@ -28,6 +32,15 @@ class HttpClientThread(threading.Thread):
         self.connection.send(b'\n')
         self.connection.send(body)
 
+    def verify_credentials(self, username, password):
+        if not manage_users.is_valid(username, password):
+            response = HTTPResponse('error', 418, 'text/html')
+            self.send_http_response(response)
+            print('Done.')
+            self.connection.close()
+            return False
+        return True
+
     def run(self):
         while True:
             mes = self.connection.recv(1024)
@@ -37,32 +50,43 @@ class HttpClientThread(threading.Thread):
 
                 command = request.command
                 path = request.path
+                body = path
+                try:
+                    body, credentials = urllib.parse.unquote(path).split('|')
+                    username, password = credentials.split('=')
+                except Exception:
+                    pass
                 request_type = mimetypes.guess_type(path)
                 error_code = request.error_code
                 error_message = request.error_message
 
                 response = HTTPResponse('error', 422, 'text/html')
 
-                print(command, path, request_type[0])
-
                 if command == 'GET':
-                    if os.path.exists('data' + path):
-                        if request.path == '/':
-                            response = HTTPResponse('resource', INDEX_PATH, request_type[0])
+                    if path == '/':
+                        response = HTTPResponse('resource', INDEX_PATH, request_type[0])
+                    elif body == '/contract_data':
+                        if self.verify_credentials(username, password):
+                            response = HTTPResponse('resource', 'contract_data.txt', request_type[0])
                         else:
-                            response = HTTPResponse('resource', 'data' + path, request_type[0])
+                            break
+                    elif os.path.exists('data' + path):
+                        response = HTTPResponse('resource', 'data' + path, request_type[0])
                     else:
                         response = HTTPResponse('error', 404, 'text/html')
                 elif command == 'UPDATE':
                     data = ''
                     exited_with_error = False
 
-                    with open('data/contract_data.txt', 'r') as f:
+                    if not self.verify_credentials(username, password):
+                        break
+
+                    with open('contract_data.txt', 'r') as f:
                         raw_data = re.sub('\n{2,}', '\n', f.read())
 
                         data = raw_data.split('\n')
 
-                        term, value = urllib.parse.unquote(path)[1:].split('=')
+                        term, value = body[1:].split('=')
 
                         for i, row in enumerate(data):
                             if row == term:
@@ -73,20 +97,23 @@ class HttpClientThread(threading.Thread):
                             exited_with_error = True
 
                     if not exited_with_error:
-                        with open('data/contract_data.txt', 'w') as f:
-                                f.write('\n'.join(data))
-                                response = HTTPResponse('action-response', 200, 'text/plain')
+                        with open('contract_data.txt', 'w') as f:
+                            f.write('\n'.join(data))
+                            response = HTTPResponse('action-response', 200, 'text/plain')
 
                 elif command == 'DELETE':
                     data = ''
                     exited_with_error = False
 
-                    with open('data/contract_data.txt', 'r') as f:
+                    if not self.verify_credentials(username, password):
+                        break
+
+                    with open('contract_data.txt', 'r') as f:
                         raw_data = f.read()
 
                         data = raw_data.split('\n')
 
-                        term = urllib.parse.unquote(path)[1:]
+                        term = body[1:]
 
                         for i, row in enumerate(data):
                             if row == term:
@@ -97,22 +124,30 @@ class HttpClientThread(threading.Thread):
                             response = HTTPResponse('error', 501, 'text/plain')
 
                     if not exited_with_error:
-                        with open('data/contract_data.txt', 'w') as f:
-                                f.write('\n'.join(data))
-                                response = HTTPResponse('action-response', 200, 'text/plain')
+                        with open('contract_data.txt', 'w') as f:
+                            f.write('\n'.join(data))
+                            response = HTTPResponse('action-response', 200, 'text/plain')
 
                 elif command == 'ADD':
                     data = ''
-                    with open('data/contract_data.txt', 'r') as f:
+
+                    if not self.verify_credentials(username, password):
+                        break
+
+                    with open('contract_data.txt', 'r') as f:
                         raw_data = f.read()
 
                         data = raw_data.strip().split('\n')
-                        data.append(urllib.parse.unquote(path)[1:])
+                        data.append(body[1:])
 
-                    with open('data/contract_data.txt', 'w+') as f:
+                    with open('contract_data.txt', 'w+') as f:
                         f.write('\n'.join(data))
 
                     response = HTTPResponse('action-response', 200, 'text/plain')
+
+                elif command == 'LOGIN':
+                    if not self.verify_credentials(username, password):
+                        break
 
                 self.send_http_response(response)
 

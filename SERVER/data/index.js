@@ -25,6 +25,17 @@ const deleteButtonElement = document.querySelector('#delete-button');
 // Add contract button
 const addButtonElement = document.querySelector('#add-button');
 
+// Login elements
+const loginOverlay = document.querySelector('#login-overlay');
+
+const usernameInput = document.querySelector('#username');
+const usernameLabel = document.querySelector('#username-label');
+
+const passwordInput = document.querySelector('#password');
+const passwordLabel = document.querySelector('#password-label');
+
+const loginButton = document.querySelector('#submit-login');
+
 // Keep track of blocking prompt visibility
 let isAddingContract = false;
 
@@ -53,6 +64,7 @@ let currentSearchByItem = searchByListElement.childNodes[1];
 
 // Send and receive HTTP requests to and from the server
 function contactServer(requestType, request) {
+    const credentials = localStorage.getItem('credentials');
     return new Promise((resolve, reject) => {
         const xhttp = new XMLHttpRequest();
         xhttp.onreadystatechange = () => {
@@ -60,7 +72,7 @@ function contactServer(requestType, request) {
                 resolve(xhttp.responseText);
             }
         };
-        xhttp.open(requestType, request);
+        xhttp.open(requestType, `${request}|${credentials}`);
 
         try {
             xhttp.send();
@@ -364,7 +376,7 @@ function updateTable() {
 
 // Asynchronously contact server and retrieve contract data
 function collectData(firstTime = false) {
-    contactServer('GET', '/contract_data.txt').then(rawData => {
+    contactServer('GET', 'contract_data').then(rawData => {
         data = [];
         let dataRows = rawData.trim().split('\n');
 
@@ -389,7 +401,6 @@ function collectData(firstTime = false) {
         connectionHalt();
     });
 }
-collectData(true);
 
 // Hide list of search by options
 function hideSearchByList() {
@@ -485,3 +496,77 @@ document.addEventListener('keydown', e => {
     }
 }, false);
 
+// LOGIN
+
+function requestLogin() {
+    contactServer('LOGIN', '').then(response => {
+        if (response !== 'i-am-a-teapot') {
+            loginOverlay.classList.add('overlay-hidden');
+            collectData(true);
+        } else {
+            alert('Invalid credentials.');
+        }
+    });
+}
+
+function attemptLogin() {
+    const username = usernameInput.value;
+    const password = passwordInput.getAttribute('data-password');
+
+    const pattern = /^\w{1,16}$/;
+
+    if (pattern.test(username) && pattern.test(password)) {
+        const credentials = `${username}=${password}`;
+        localStorage.setItem('credentials', credentials);
+        requestLogin();
+    }
+}
+
+passwordInput.addEventListener('keydown', e => {
+    if (!(e.ctrlKey && e.key === 'r' || e.metaKey && e.key == 'r')) {
+        e.preventDefault();
+        const currentPassword = passwordInput.getAttribute('data-password') || '';
+        const PI = passwordInput;
+
+        if (e.key === 'Backspace') {
+            PI.setAttribute(
+                'data-password',
+                currentPassword.slice(0, currentPassword.length - 1)
+            );
+            PI.value = PI.value.slice(0, PI.value.length - 1);
+        } else if (e.key === 'Enter') {
+            attemptLogin();
+        } else if (/^\w$/.test(e.key) && currentPassword.length < 16) {
+            passwordInput.setAttribute('data-password', currentPassword + e.key);
+            passwordInput.value += '•';
+        }
+    }
+}, false);
+
+passwordInput.addEventListener('focusout', () => {
+    if (passwordInput.value) {
+        passwordInput.classList.add('login-input-active');
+        passwordLabel.classList.add('login-label-active');
+    } else {
+        passwordInput.classList.remove('login-input-active');
+        passwordLabel.classList.remove('login-label-active');
+    }
+}, false);
+
+usernameInput.addEventListener('change', () => {
+    if (usernameInput.value) {
+        usernameInput.classList.add('login-input-active');
+        usernameLabel.classList.add('login-label-active');
+    } else {
+        usernameInput.classList.remove('login-input-active');
+        usernameLabel.classList.remove('login-label-active');
+    }
+}, false);
+
+loginButton.addEventListener('click', () => {
+    attemptLogin();
+}, false);
+
+if (localStorage.getItem('credentials')) {
+    requestLogin();
+}

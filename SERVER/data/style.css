@@ -48,7 +48,7 @@ body, html {
 }
 
 #search-term:focus, .search-input-focused {
-    transition-duration: .1s;
+    transition-duration: .09s;
     border-bottom: solid 1px #C0B283 !important;
 }
 
@@ -190,8 +190,8 @@ td, th {
     top: 0;
     left: 0;
     display: none;
-    width: 225px;
-    height: 110px;
+    width: 270px;
+    height: 160px;
     z-index: 2;
 }
 
@@ -202,7 +202,7 @@ td, th {
     height: 50%;
     display: block;
     font-family: helvetica;
-    font-size: 13pt;
+    font-size: 12pt;
     color: #C0B283;
     border: none;
     cursor: pointer;
@@ -272,7 +272,8 @@ td, th {
 }
 
 #blocking-prompt-visible:checked~* {
-    filter: blur(5px);
+    filter: grayscale(70%);
+    pointer-events: none;
 }
 
 .halted {
@@ -303,4 +304,89 @@ td, th {
     font-family: helvetica;
     font-weight: 300;
     letter-spacing: .06em;
+}
+
+/* User login */
+#login-overlay {
+    margin: 0;
+    padding: 0;
+    position: absolute;
+    z-index: 99;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: white;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+
+.overlay-hidden {
+    opacity: 0;
+    transition-duration: .08s;
+    pointer-events: none;
+}
+
+.login-input {
+    margin: 0;
+    margin-bottom: 50px;
+    border: none;
+    border-bottom: solid 1px #CCC;
+    width: 250px;
+    font-size: 11pt;
+    font-family: helvetica;
+    letter-spacing: .06em;
+    font-weight: 100;
+    padding: 0 6px 4px 6px;
+    box-sizing: border-box;
+}
+
+.input-wrapper {
+    display: block;
+}
+
+.login-label {
+    position: absolute;
+    transform: translate(5px, 5px);
+    font-size: 9pt;
+    font-family: helvetica;
+    text-transform: uppercase;
+    letter-spacing: .06em;
+    color: #555;
+    cursor: text;
+}
+
+.login-input:focus, .login-input-active {
+    border-bottom-color: #C0B283;
+    transition-duration: .1s;
+}
+
+.input-wrapper:focus-within .login-label, .login-label-active {
+    color: #C0B283;
+    transform: translate(0, -15px);
+    font-size: 8pt;
+    font-weight: 600;
+}
+
+#submit-login {
+    width: 250px;
+    border: none;
+    outline: none;
+    height: 35px;
+    border: solid 1px #C0B283;
+    color: #C0B283;
+    background: transparent;
+    cursor: pointer;
+    font-family: helvetica;
+    font-size: 9pt;
+    font-weight: 400;
+    letter-spacing: .2em;
+    box-sizing: border-box;
+}
+
+#submit-login:active {
+    background: #C0B283;
+    color: white;
 }
