@@ -64,7 +64,7 @@ let currentSearchByItem = searchByListElement.childNodes[1];
 
 // Send and receive HTTP requests to and from the server
 function contactServer(requestType, request) {
-    const credentials = localStorage.getItem('credentials');
+    let credentials = localStorage.getItem('credentials');
     return new Promise((resolve, reject) => {
         const xhttp = new XMLHttpRequest();
         xhttp.onreadystatechange = () => {
@@ -72,6 +72,9 @@ function contactServer(requestType, request) {
                 resolve(xhttp.responseText);
             }
         };
+
+        request = request.replace(';', '');
+        credentials = credentials.replace(';', '');
         xhttp.open(requestType, `${request}|${credentials}`);
 
         try {

@@ -55,7 +55,6 @@ def pull_contract_data():
     return data.strip().decode('utf-8')
 
 remote_contract_data = pull_contract_data()
-
 local_contract_data = ''
 
 dir_path = os.path.dirname(os.path.realpath(__file__))
@@ -80,13 +79,15 @@ else:
 contract_data = {}
 
 for line in contract_data_raw.split('\n'):
-    line_data = line.split(';')
-    *line_data, line_name = line_data
-    line_name = line_name.strip()
-    if not line_name in contract_data:
-        contract_data[line_name] = [line_data]
-    else:
-        contract_data[line_name].append(line_data)
+    if line:
+        line_data = line.split(';')
+        *line_data, line_name, quadra = line_data
+        line_data.append(quadra)
+        line_name = line_name.strip()
+        if not line_name in contract_data:
+            contract_data[line_name] = [line_data]
+        else:
+            contract_data[line_name].append(line_data)
 
 if not contract_data:
     print('Unable to read contract data')
@@ -271,14 +272,17 @@ while bdf_row < bdf_height:
     unidade = match_unidade.match(name).group(0)
     contract = ''
 
-    specific_name = '{}%{}'.format(parsed_name, quadra)
-    if parsed_name in contract_data or specic_name in contract_data:
+    if parsed_name in contract_data:
         name_target = contract_data[parsed_name]
+        quadra = re.sub('(QUADRA|QD) ', '', quadra, re.I)
 
         for line in name_target:
             if line[0] == unidade:
-                contract = line[1]
-                break
+                if line[-1] == quadra or line[-1] == '':
+                    contract = line[1]
+                    break
+                else:
+                    print(name, 'not in contract data at', quadra)
         else:
             bdf_row += 1
             continue
