@@ -1,4 +1,5 @@
 import pandas as pd
+import re
 
 import sys
 
@@ -10,11 +11,17 @@ row_i = 0
 
 txt = ''
 
+match_quadra = re.compile('((QUADRA|QD) M{0,4}(CM|CD|D?C{0,3})(XC|XL|L?X{0,3})(IX|IV|V?I{0,3})|(QUADRA|QD) [A-Z]?\d+)( (\s|-)*[A-Z]+)?$')
+
 while row_i < data_height:
     lote = data.loc[row_i, 'NOME_LOTE']
     contrato = data.loc[row_i, 'CONTRATO']
     cliente = data.loc[row_i, 'NOME_CLI']
     documento = data.loc[row_i, 'CPF_CNPJ']
+
+    validated_quadra = match_quadra.search(data.loc[row_i, 'NOME_QUADRA'])
+    if validated_quadra:
+        cliente = '{}%{}'.format(cliente, validated_quadra.group(0))
 
     txt += str(lote) + ';'
     txt += str(contrato) + ';'

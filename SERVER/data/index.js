@@ -124,6 +124,18 @@ function clearChildren(node) {
         node.removeChild(firstChild);
 }
 
+function addRow(row) {
+    const [unidade, contrato, documento, nome, quadra] = row;
+
+    data.push({
+        'Unidade': unidade,
+        'N. Contrato': contrato,
+        'CPF/CNPJ': documento,
+        'Nome': nome,
+        'Quadra': quadra
+    });
+}
+
 // Show add prompt on add button press
 addButtonElement.addEventListener('click', e => {
     e.stopPropagation();
@@ -134,7 +146,7 @@ addButtonElement.addEventListener('click', e => {
     table.setAttribute('id', 'add-table');
 
     const headerRow = document.createElement('TR');
-    const headers = ['Unidade', 'N. Contrato', 'CPF/CNPJ', 'Nome'];
+    const headers = ['Unidade', 'N. Contrato', 'CPF/CNPJ', 'Nome', 'Quadra'];
 
     headers.forEach(header => {
         const headerElement = document.createElement('TH');
@@ -173,13 +185,7 @@ addButtonElement.addEventListener('click', e => {
                     const rowElement = document.createElement('TR');
                     rowElement.setAttribute('class', 'contract-table-row');
 
-                    const [unidade, contrato, documento, nome] = dataRow;
-                    data.push({
-                        'Unidade': unidade,
-                        'N. Contrato': contrato,
-                        'CPF/CNPJ': documento,
-                        'Nome': nome
-                    });
+                    addRow(dataRow);
 
                     dataRow.forEach(column => {
                         const columnElement = document.createElement('TD');
@@ -382,13 +388,7 @@ function collectData(firstTime = false) {
 
         // Organize data into rows of objects
         dataRows.forEach(row => {
-            [unidade, contrato, documento, nome] = row.split(';');
-            data.push({
-                'Unidade': unidade,
-                'N. Contrato': contrato,
-                'CPF/CNPJ': documento,
-                'Nome': nome
-            });
+            addRow(row.split(';'));
         });
 
         if (firstTime) {
@@ -398,6 +398,7 @@ function collectData(firstTime = false) {
         }
         updateTable();
     }).catch(e => {
+        console.log(e);
         connectionHalt();
     });
 }

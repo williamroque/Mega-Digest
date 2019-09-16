@@ -117,6 +117,15 @@ match_sequence = re.compile('\d+/\d+')
 match_num = re.compile('\d+')
 strip_doc = lambda x: ''.join(match_num.findall(x))
 
+# Get quadra from empreendimento
+match_quadra = re.compile('(Quadra|QD) M{0,4}(CM|CD|D?C{0,3})(XC|XL|L?X{0,3})(IX|IV|V?I{0,3})( (\s|-)*[A-Z])?$|(Quadra|QD) [A-Z]\d+$')
+def get_quadra(x):
+    match = match_quadra.search(x)
+    if match:
+        return match.group(0)
+    else:
+        return ''
+
 # Make sure following contracts are not term
 is_term = False
 match_term = re.compile('termo', re.I)
@@ -197,9 +206,10 @@ bdf_row = 19
 not_partial = ['dinheiro', 'banco', 'cheque', 'ted']
 is_partial = False
 
+quadra = ''
+
 # For each bdf row
 while bdf_row < bdf_height:
-
     # Client name
     name = str(bdf.iloc[bdf_row, 0])
 
@@ -211,6 +221,7 @@ while bdf_row < bdf_height:
 
         # If is empreendimento name
         elif begins_with_empr.match(name):
+            quadra = get_quadra(name)
             is_term = False
 
         # Check if 'parcela' type is partial
@@ -260,7 +271,8 @@ while bdf_row < bdf_height:
     unidade = match_unidade.match(name).group(0)
     contract = ''
 
-    if parsed_name in contract_data:
+    specific_name = '{}%{}'.format(parsed_name, quadra)
+    if parsed_name in contract_data or specic_name in contract_data:
         name_target = contract_data[parsed_name]
 
         for line in name_target:
@@ -284,6 +296,7 @@ while bdf_row < bdf_height:
 
     # Add row data to name
     bdf_client_data[parsed_name].append({
+        'quadra': quadra,
         'unidade': '{0:03}'.format(int(unidade)),
         'contrato': contract,
         'sequencia': format_sequencia(match_sequence.match(str(bdf.iloc[bdf_row, bdf_data_cols['sequencia']])).group(0)),

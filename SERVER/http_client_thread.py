@@ -56,6 +56,7 @@ class HttpClientThread(threading.Thread):
                     username, password = credentials.split('=')
                 except Exception:
                     pass
+
                 request_type = mimetypes.guess_type(path)
                 error_code = request.error_code
                 error_message = request.error_message
@@ -64,10 +65,12 @@ class HttpClientThread(threading.Thread):
 
                 if command == 'GET':
                     if path == '/':
-                        response = HTTPResponse('resource', INDEX_PATH, request_type[0])
+                        request_type = 'text/html'
+                        response = HTTPResponse('resource', INDEX_PATH, request_type)
                     elif body == '/contract_data':
                         if self.verify_credentials(username, password):
-                            response = HTTPResponse('resource', 'contract_data.txt', request_type[0])
+                            request_type = 'text/plain'
+                            response = HTTPResponse('resource', 'contract_data.txt', request_type)
                         else:
                             break
                     elif os.path.exists('data' + path):
@@ -89,6 +92,7 @@ class HttpClientThread(threading.Thread):
                         term, value = body[1:].split('=')
 
                         for i, row in enumerate(data):
+                            print(row, term)
                             if row == term:
                                 data[i] = value
                                 break
