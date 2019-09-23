@@ -18,15 +18,16 @@ while row_i < data_height:
     contrato = data.loc[row_i, 'CONTRATO']
     cliente = data.loc[row_i, 'NOME_CLI']
     documento = data.loc[row_i, 'CPF_CNPJ']
-
-    validated_quadra = match_quadra.search(data.loc[row_i, 'NOME_QUADRA'])
-    if validated_quadra:
-        cliente = '{}%{}'.format(cliente, validated_quadra.group(0))
+    quadra = match_quadra.search(data.loc[row_i, 'NOME_QUADRA'])
 
     txt += str(lote) + ';'
     txt += str(contrato) + ';'
     txt += str(documento) + ';'
-    txt += str(cliente).strip() + '\n'
+    if quadra:
+        txt += str(cliente).strip() + ';'
+        txt += re.sub('(QD|QUADRA) ', '', quadra.group(0), re.I) + '\n'
+    else:
+        txt += str(cliente).strip() + '\n'
 
     row_i += 1
 
