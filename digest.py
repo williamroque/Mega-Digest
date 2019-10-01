@@ -119,10 +119,10 @@ match_num = re.compile('\d+')
 strip_doc = lambda x: ''.join(match_num.findall(x))
 
 # Get quadra from empreendimento
-match_quadra = re.compile('(Quadra|QD) M{0,4}(CM|CD|D?C{0,3})(XC|XL|L?X{0,3})(IX|IV|V?I{0,3})( (\s|-)*[A-Z])?$|(Quadra|QD) [A-Z]\d+$')
+match_quadra = re.compile('(qd|quadra) (([A-z]?\d+)|(M{0,4}(CM|CD|D?C{0,3})(XC|XL|L?X{0,3})(IX|IV|V?I{0,3})))(\s*-\s*[A-z])?', re.I)
 def get_quadra(x):
     match = match_quadra.search(x)
-    if match:
+    if match and len(match.group(0)) > 3:
         return match.group(0)
     else:
         return ''
@@ -276,12 +276,12 @@ while bdf_row < bdf_height:
         name_target = contract_data[parsed_name]
         quadra = re.sub('(QUADRA|QD) ', '', quadra, re.I)
 
-        for line in name_target:
+        for i, line in enumerate(name_target):
             if line[0] == unidade:
                 if line[-1] == quadra or line[-1] == '':
                     contract = line[1]
                     break
-                else:
+                elif i == len(name_target) - 1:
                     print(name, 'not in contract data at', quadra)
         else:
             bdf_row += 1

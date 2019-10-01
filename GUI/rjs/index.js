@@ -51,8 +51,6 @@ function attemptUpdate() {
     } else if (returnCode === 2) {
         alert('Incorrect username or password');
     }
-
-
 }
 
 // Attempt update on button press

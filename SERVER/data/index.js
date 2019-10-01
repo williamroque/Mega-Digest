@@ -73,8 +73,6 @@ function contactServer(requestType, request) {
             }
         };
 
-        request = request.replace(';', '');
-        credentials = credentials.replace(';', '');
         xhttp.open(requestType, `${request}|${credentials}`);
 
         try {
@@ -180,7 +178,6 @@ addButtonElement.addEventListener('click', e => {
                 for (let i = 0; i < columns.length; i++) {
                     let column = columns[i].value;
 
-                    if (!column) return;
                     dataRow.push(column);
                 }
 
@@ -322,7 +319,7 @@ function handleRowClick(e) {
 
         currentRow = [];
         for (let i = 0; i < columnNodes.length; i++) {
-            currentRow.push(columnNodes[i].innerText);
+            currentRow.push(columnNodes[i].innerText.replace(/;/g, '').replace('/=/g', ''));
         }
         currentRowElement = e.target.parentNode;
 
