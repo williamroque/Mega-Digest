@@ -238,9 +238,9 @@ editButtonElement.addEventListener('click', e => {
 
         input.setAttribute('type', 'text');
         input.setAttribute('class', 'row-edit-input');
-        input.setAttribute('value', node.innerText);
+        input.setAttribute('value', node.innerHTML);
 
-        currentRowValues.push(node.innerText);
+        currentRowValues.push(node.innerHTML);
 
         input.addEventListener('keydown', e => {
             if (e.key !== 'Enter' && e.key !== 'Escape')
@@ -319,7 +319,7 @@ function handleRowClick(e) {
 
         currentRow = [];
         for (let i = 0; i < columnNodes.length; i++) {
-            currentRow.push(columnNodes[i].innerText.replace(/;/g, '').replace('/=/g', ''));
+            currentRow.push(columnNodes[i].innerHTML.replace(/;/g, '').replace('/=/g', ''));
         }
         currentRowElement = e.target.parentNode;
 
@@ -385,6 +385,7 @@ function collectData(firstTime = false) {
     contactServer('GET', 'contract_data').then(rawData => {
         data = [];
         let dataRows = rawData.trim().split('\n');
+        console.log(dataRows);
 
         // Organize data into rows of objects
         dataRows.forEach(row => {
