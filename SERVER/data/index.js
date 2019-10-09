@@ -540,7 +540,7 @@ passwordInput.addEventListener('keydown', e => {
             attemptLogin();
         } else if (/^\w$/.test(e.key) && currentPassword.length < 16) {
             passwordInput.setAttribute('data-password', currentPassword + e.key);
-            passwordInput.value += '•';
+            passwordInput.value += '-';
         }
     }
 }, false);
