@@ -62,6 +62,21 @@ let isEditing;
 // Keep track of current search by term option
 let currentSearchByItem = searchByListElement.childNodes[1];
 
+// FOR MAINTENANCE PURPOSES
+
+const isDeveloping = true;
+
+if (isDeveloping) {
+    if (!localStorage.getItem('developer')) {
+        let child;
+        while (child = document.body.firstChild) child.remove();
+
+        document.write('<h1 style="font-family: helvetica; text-transform: uppercase; letter-spacing: .06em; font-size: 20pt; width: 100%; text-align: center; position: absolute; top: 45%; tranform: translate(-50%); margin: 0; padding: 0">Em manutenção</h1>');
+    }
+}
+
+// FOR MAINTENANCE PURPOSES
+
 // Send and receive HTTP requests to and from the server
 function contactServer(requestType, request) {
     let credentials = localStorage.getItem('credentials');
@@ -385,7 +400,6 @@ function collectData(firstTime = false) {
     contactServer('GET', 'contract_data').then(rawData => {
         data = [];
         let dataRows = rawData.trim().split('\n');
-        console.log(dataRows);
 
         // Organize data into rows of objects
         dataRows.forEach(row => {

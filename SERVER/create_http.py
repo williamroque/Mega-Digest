@@ -31,7 +31,7 @@ class HTTPResponse():
             else:
                 body = '422: invalid request. Stop making things up!'
         elif self.type == 'resource':
-            with open(self.value, 'r') as f:
+            with open(self.value, 'r', encoding='utf8') as f:
                 body = re.sub('\n{2,}', '\n', f.read())
         elif self.type == 'action-response':
             body = ''

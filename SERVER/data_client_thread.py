@@ -13,7 +13,7 @@ class DataClientThread(threading.Thread):
             mes = self.connection.recv(1024)
 
             if mes == b'request_data':
-                with open('contract_data.txt', 'r') as f:
+                with open('contract_data.txt', 'r', encoding='utf8') as f:
                     contract_data = f.read()
                     self.connection.send(contract_data.encode('utf-8'))
                     self.connection.send(b'exit')

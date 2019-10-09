@@ -84,7 +84,7 @@ class HttpClientThread(threading.Thread):
                     if not self.verify_credentials(username, password):
                         break
 
-                    with open('contract_data.txt', 'r') as f:
+                    with open('contract_data.txt', 'r', encoding='utf8') as f:
                         raw_data = re.sub('\n{2,}', '\n', f.read())
 
                         data = raw_data.split('\n')
@@ -101,7 +101,7 @@ class HttpClientThread(threading.Thread):
                             exited_with_error = True
 
                     if not exited_with_error:
-                        with open('contract_data.txt', 'w') as f:
+                        with open('contract_data.txt', 'w', encoding='utf8') as f:
                             f.write('\n'.join(data))
                             response = HTTPResponse('action-response', 200, 'text/plain')
 
@@ -112,7 +112,7 @@ class HttpClientThread(threading.Thread):
                     if not self.verify_credentials(username, password):
                         break
 
-                    with open('contract_data.txt', 'r') as f:
+                    with open('contract_data.txt', 'r', encoding='utf8') as f:
                         raw_data = f.read()
 
                         data = raw_data.split('\n')
@@ -128,7 +128,7 @@ class HttpClientThread(threading.Thread):
                             response = HTTPResponse('error', 501, 'text/plain')
 
                     if not exited_with_error:
-                        with open('contract_data.txt', 'w') as f:
+                        with open('contract_data.txt', 'w', encoding='utf8') as f:
                             f.write('\n'.join(data))
                             response = HTTPResponse('action-response', 200, 'text/plain')
 
@@ -138,13 +138,13 @@ class HttpClientThread(threading.Thread):
                     if not self.verify_credentials(username, password):
                         break
 
-                    with open('contract_data.txt', 'r') as f:
+                    with open('contract_data.txt', 'r', encoding='utf8') as f:
                         raw_data = f.read()
 
                         data = raw_data.strip().split('\n')
                         data.append(body[1:])
 
-                    with open('contract_data.txt', 'w+') as f:
+                    with open('contract_data.txt', 'w+', encoding='utf8') as f:
                         f.write('\n'.join(data))
 
                     response = HTTPResponse('action-response', 200, 'text/plain')

@@ -8,13 +8,13 @@ path = 'credentials.json'
 data = {}
 
 if os.path.exists(path):
-    with open(path, 'r') as f:
+    with open(path, 'r', encoding='utf8') as f:
         data = json.loads(f.read())
 
 hash_password = lambda p: hashlib.sha256(p.encode('utf-8')).hexdigest()
 
 def write_credentials():
-    with open(path, 'w+') as f:
+    with open(path, 'w+', encoding='utf8') as f:
         f.write(json.dumps(data))
 
 def is_valid(username, password):

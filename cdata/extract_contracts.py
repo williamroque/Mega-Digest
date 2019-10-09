@@ -27,7 +27,7 @@ while row_i < data_height:
         txt += str(cliente).strip() + ';'
         txt += re.sub('(QD|QUADRA) ', '', quadra.group(0), re.I) + '\n'
     else:
-        txt += str(cliente).strip() + '\n'
+        txt += str(cliente).strip() + ';\n'
 
     row_i += 1
 
