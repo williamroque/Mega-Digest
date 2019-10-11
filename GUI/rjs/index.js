@@ -93,18 +93,34 @@ boletimDrop.addEventListener('drop', e => {
     e.preventDefault();
     e.stopPropagation();
 
-    // Sets file input to file if extension is .xls or .xlsx
-    const file = e.dataTransfer.files[0].path;
-    if (/\.xls$|\.xlsx$/.test(file)) {
-        boletimInput.innerText = file;
-    } else if (/\.dpf$/.test(file)) {
-        packageFilePath = file;
-        if (requestIsValidVersion(file)) {
-            showCredentialsPrompt();
+    const excelTest = /\.xls$|\.xlsx$/;
+    const dpfTest = /\.dpf$/;
+
+    const files = [...e.dataTransfer.files].map(file => file.path).filter(file => excelTest.test(file) || dpfTest.test(file));
+
+    if (files.length === 1) {
+        const file = files[0];
+
+        if (excelTest.test(file)) {
+            boletimInput.innerText = file;
+        } else {
+            packageFilePath = file;
+            if (requestIsValidVersion(file)) {
+                showCredentialsPrompt();
+            }
+        }
+    } else if (files.length > 1) {
+        const fileMatch = /(?<=r_car_boletim_recebimento_).*(?=.xls)/;
+
+        const fileList = files.filter(file => fileMatch.test(file));
+        if (fileList.length) {
+            const outputPath = requestSaveDialog('folder');
+            fileList.forEach(file => {
+                requestRunScript(file, `${outputPath}/arquivo_retorno_${file.match(fileMatch)}.txt`);
+            });
         }
     }
 
-    // Reset drop area background color
     boletimDrop.style.background = '#FFF';
     boletimInput.style.background = '#FFF';
 }, false);
@@ -136,7 +152,7 @@ runScriptButton.addEventListener('click', _ => {
 
     if (!bPath) return;
 
-    requestRunScript(bPath);
+    requestRunScript(bPath, requestSaveDialog('file'));
 }, false);
 
 // Close window on click button

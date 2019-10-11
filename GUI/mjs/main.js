@@ -1,22 +1,18 @@
-// Electron app import
 const { app, dialog } = require('electron');
 
-// Save window size
 const windowStateKeeper = require('electron-window-state');
-
-// Get appdata path
 const appData = app.getPath('appData');
 
-// Interprocess communication
 const { ipcMain } = require('electron');
 
-// Python communication
 const shell = require('shelljs');
-
-// Native shell for file opening
 const nShell = require('electron').shell;
 
-// Set up file I/O module
+const outputPath = appData + '/Mega Paysage Digest/output.txt';
+
+const fs = require('fs');
+fs.writeFileSync(outputPath, '');
+
 const FileIO = require('./fileio');
 fileio = new FileIO();
 fileio.setup();
@@ -50,9 +46,7 @@ function runScript(willQuit, args) {
                     willQuit = false;
                     resolve(2);
                 } else {
-                    const outputPath = appData + '/Mega Paysage Digest/output.txt';
-
-                    fileio.writeData(output, outputPath);
+                    fs.appendFileSync(outputPath, `\n--- ${new Date()} ---\n${output}`);
                     nShell.openItem(outputPath);
                 }
             }
@@ -82,31 +76,30 @@ function runScript(willQuit, args) {
 }
 
 // Create file select dialog
-const createSelectDialog = () => dialog.showOpenDialog({
-    properties: ['openFile'],
-    filters: [
-        { name: 'Excel', extensions: ['xls', 'xlsx'] }
-    ]
-});
-
-// Create file save dialog
-const saveDialogOptions = {
-    title: 'Save',
-    filters: [
-        { name: 'Text File', extensions: ['txt'] }
-    ]
-};
-const createSaveDialog = () => dialog.showSaveDialog(null, saveDialogOptions);
+function createSelectDialog(type) {
+    if (type === 'file') {
+        return dialog.showOpenDialog({
+            properties: ['openFile'],
+            filters: [
+                { name: 'Excel', extensions: ['xls', 'xlsx'] }
+            ]
+        });
+    } else {
+        return dialog.showOpenDialog({ properties: ['openDirectory'] });
+    }
+}
 
 // On request file dialog
 ipcMain.on('get-open-dialog', (event, _) => {
     event.returnValue = createSelectDialog();
 });
 
-// On request run python script with paths
-ipcMain.on('run-script', async (event, path) => {
-    const fileName = createSaveDialog();
+ipcMain.on('get-save-dialog', (event, type) => {
+    event.returnValue = createSelectDialog(type);
+});
 
+// On request run python script with paths
+ipcMain.on('run-script', async (event, path, fileName) => {
     let returnCode = 0;
 
     if (fileName && !configErrorScheduled) {
