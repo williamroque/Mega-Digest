@@ -6,7 +6,7 @@
     "build": {
         "appId": "com.ethos.MegaPaysageDigest",
         "mac": {
-            "target": "dmg",
+            "target": "pkg",
             "icon": "assets/icon.png",
             "darkModeSupport": true
         },
