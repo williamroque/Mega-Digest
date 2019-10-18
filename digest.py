@@ -277,7 +277,7 @@ while bdf_row < bdf_height:
         quadra = re.sub('(QUADRA|QD) ', '', quadra, re.I)
 
         for i, line in enumerate(name_target):
-            if line[0] == unidade:
+            if int(line[0]) == int(unidade):
                 if line[-1] == quadra or line[-1] == '':
                     contract = line[1]
                     break

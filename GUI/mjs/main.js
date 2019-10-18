@@ -75,27 +75,26 @@ function runScript(willQuit, args) {
     });
 }
 
-// Create file select dialog
-function createSelectDialog(type) {
-    if (type === 'file') {
-        return dialog.showOpenDialog({
-            properties: ['openFile'],
-            filters: [
-                { name: 'Excel', extensions: ['xls', 'xlsx'] }
-            ]
-        });
-    } else {
-        return dialog.showOpenDialog({ properties: ['openDirectory'] });
-    }
-}
-
-// On request file dialog
 ipcMain.on('get-open-dialog', (event, _) => {
-    event.returnValue = createSelectDialog();
+    event.returnValue = dialog.showOpenDialog({
+        properties: ['openFile'],
+        filters: [
+            { name: 'Excel', extensions: ['xls', 'xlsx'] }
+        ]
+    });
 });
 
 ipcMain.on('get-save-dialog', (event, type) => {
-    event.returnValue = createSelectDialog(type);
+    if (type === 'file') {
+        event.returnValue = dialog.showSaveDialog({
+            properties: ['openFile'],
+            filters: [
+                { name: 'Text', extensions: ['txt'] }
+            ]
+        });
+    } else {
+        event.returnValue = dialog.showOpenDialog({ properties: ['openDirectory'] });
+    }
 });
 
 // On request run python script with paths
