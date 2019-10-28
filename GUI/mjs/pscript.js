@@ -1,11 +1,11 @@
 
 const pScript = `
 import sys
+import os
+
 import json
 
-with open(sys.argv[1], 'r') as f:
-    package = json.loads(f.read())
-
+package = read_data(sys.argv[1])
 dump_directory = sys.argv[2]
 
 local_version = 0
