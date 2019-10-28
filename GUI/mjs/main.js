@@ -23,20 +23,16 @@ let configErrorScheduled = false;
 
 if (!fileio.configSet) configErrorScheduled = true;
 
-// Fix path after packaging
 const fixPath = require('fix-path');
 fixPath();
 
-// Run Python script
 function runScript(willQuit, args) {
     return new Promise(resolve => {
-        // Makes sure Python 3 is installed
         if (!shell.which('python3')) {
             console.log('Python 3 not installed');
             resolve(1);
         }
 
-        // Execute python script and check for output status
         const spawn = require('child_process').spawn;
         const process = spawn('python3', args);
 
@@ -71,6 +67,11 @@ function runScript(willQuit, args) {
         });
     });
 }
+
+ipcMain.on('clear-output', event => {
+    fs.writeFileSync(outputPath, '');
+    event.returnValue = 0;
+});
 
 ipcMain.on('get-open-dialog', (event, _) => {
     event.returnValue = dialog.showOpenDialog({
@@ -121,7 +122,6 @@ ipcMain.on('is-valid-version', (event, path) => {
     event.returnValue = true;
 });
 
-// On request run python script with paths
 ipcMain.on('attempt-update', async (event, data) => {
     let path = data;
 
@@ -136,15 +136,14 @@ ipcMain.on('attempt-update', async (event, data) => {
     event.returnValue = returnCode;
 });
 
-// Window class import
 const Window = require('./window');
 
-// Main window properties
 const mainWinObject = {
     center: true,
     icon: '../assets/icon.png',
     frame: false,
     transparent: true,
+    backgroundColor: '#fff',
     minWidth: 890,
     minHeight: 610,
     maxWidth: 1150,
@@ -152,10 +151,8 @@ const mainWinObject = {
     fullscreen: false,
 };
 
-// Main window
 let mainWin;
 
-// Create main window as Window object 
 const createWindow = () => {
     let mainWindowState = windowStateKeeper({
         defaultWidth: 1150,
@@ -176,7 +173,6 @@ const createWindow = () => {
     mainWindowState.manage(mainWin.window);
 };
 
-// Create window when ready
 app.on('ready', createWindow);
 
 app.on('window-all-closed', () => {
