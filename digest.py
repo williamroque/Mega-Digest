@@ -61,7 +61,7 @@ dir_path = os.path.dirname(os.path.realpath(__file__))
 contract_data_path = dir_path + '/contract_data.txt'
 
 if os.path.exists(contract_data_path):
-    with open(contract_data_path, 'r+') as f:
+    with open(contract_data_path, 'r+', encoding='utf8') as f:
         local_contract_data = f.read()
 
 contract_data_raw = ''
@@ -71,7 +71,7 @@ if remote_contract_data:
 
     if remote_contract_data != local_contract_data:
         print('Updating contract data...')
-        with open(contract_data_path, 'w+') as f:
+        with open(contract_data_path, 'w+', encoding='utf8') as f:
             f.write(remote_contract_data)
 else:
     contract_data_raw = local_contract_data
@@ -330,5 +330,5 @@ for key in bdf_client_data:
         txt += row['desconto'] + ';'
         txt += row['p_type'] + '\n'
 
-with open(sys.argv[2], 'w+') as f:
+with open(sys.argv[2], 'w+', encoding='utf8') as f:
     f.write(txt)
