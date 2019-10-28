@@ -17,6 +17,8 @@ const FileIO = require('./fileio');
 fileio = new FileIO();
 fileio.setup();
 
+const path = require('path');
+
 let configErrorScheduled = false;
 
 if (!fileio.configSet) configErrorScheduled = true;
@@ -42,7 +44,7 @@ function runScript(willQuit, args) {
             output = output.toString();
 
             if (output) {
-                fs.appendFileSync(outputPath, `\n--- ${args[1]} ---\n${output}`);
+                fs.appendFileSync(outputPath, `\n--- ${path.basename(args[1])} ---\n\n${output}`);
                 nShell.openItem(outputPath);
             }
         });
