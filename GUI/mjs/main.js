@@ -44,7 +44,7 @@ function runScript(willQuit, args) {
             output = output.toString();
 
             if (output) {
-                fs.appendFileSync(outputPath, `\n--- ${path.basename(args[1])} ---\n\n${output}`);
+                fs.appendFileSync(outputPath, `\n--- ${path.basename(args[1])} ---\r\n${output}`);
                 nShell.openItem(outputPath);
             }
         });
