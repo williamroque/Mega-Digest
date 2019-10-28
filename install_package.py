@@ -1,7 +1,9 @@
 import sys
 import json
 
-package = read_data(sys.argv[1])
+with open(sys.argv[1], 'r') as f:
+    package = json.loads(f.read())
+
 dump_directory = sys.argv[2]
 
 local_version = 0
