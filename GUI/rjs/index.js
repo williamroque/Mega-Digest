@@ -52,6 +52,8 @@ boletimDrop.addEventListener('drop', e => {
 
         const fileList = files.filter(file => fileMatch.test(file));
         if (fileList.length) {
+            requestClearOutput();
+
             const outputPath = requestSaveDialog('folder');
             fileList.forEach(file => {
                 requestRunScript(file, `${outputPath}/arquivo_retorno_${file.match(fileMatch)}.txt`);
@@ -81,6 +83,8 @@ runScriptButton.addEventListener('click', _ => {
     const bPath = boletimInput.innerText;
 
     if (!bPath) return;
+
+    requestClearOutput();
 
     requestRunScript(bPath, requestSaveDialog('file'));
 }, false);

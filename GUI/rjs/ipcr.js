@@ -12,6 +12,10 @@ function requestRunScript(path, outputFile) {
     return ipcRenderer.sendSync('run-script', path, outputFile);
 }
 
+function requestClearOutput() {
+    ipcRenderer.sendSync('clear-output');
+}
+
 function requestIsValidVersion(path) {
     return ipcRenderer.sendSync('is-valid-version', path);
 }
