@@ -80,7 +80,7 @@ contract_data = {}
 
 for line in contract_data_raw.split('\n'):
     if line:
-        line_data = line.split(';')
+        line_data = re.sub(r'\\u\w{4}', '', repr(line)[1:-1]).split(';')
         *line_data, line_name, quadra = line_data
         line_data.append(quadra)
         line_name = line_name.strip()
