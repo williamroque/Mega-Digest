@@ -10,13 +10,10 @@ import datetime
 import socket
 from errno import ENETUNREACH
 
-# Excel files
 boletim_file = sys.argv[1]
 
-# Read excel files
 bdf = pd.read_excel(boletim_file)
 
-# Get contract data
 data_host = '192.168.25.15'
 data_port = 8888
 
@@ -93,32 +90,23 @@ if not contract_data:
     print('Unable to read contract data')
     sys.exit(0)
 
-# Compile raw data
 
-# Is client name
 is_name = re.compile('^\d+ - .+')
 
-# Get name from name cell
 strip_unidade = lambda x: re.sub('^.*?-\s?', '', x)
 
-# Get lote number from name
 match_unidade = re.compile('\d+')
 
-# Begins with empreendimento
 begins_with_empr = re.compile('^empreendimento', re.I)
 
-# Find date and format
 match_date = re.compile('\d{4}-\d{2}-\d{2}')
 format_date = lambda x: '/'.join(match_date.match(x).group(0).split('-')[::-1])
 
-# Parse sequence
 match_sequence = re.compile('\d+/\d+')
 
-# Strip document to number
 match_num = re.compile('\d+')
 strip_doc = lambda x: ''.join(match_num.findall(x))
 
-# Get quadra from empreendimento
 match_quadra = re.compile('(qd|quadra) (([A-z]?\d+)|(M{0,4}(CM|CD|D?C{0,3})(XC|XL|L?X{0,3})(IX|IV|V?I{0,3})))(\s*-\s*[A-z])?', re.I)
 def get_quadra(x):
     match = match_quadra.search(x)
@@ -127,7 +115,6 @@ def get_quadra(x):
     else:
         return ''
 
-# Make sure following contracts are not term
 is_term = False
 match_term = re.compile('termo', re.I)
 check_term = lambda x: bool(match_term.match(x))
@@ -140,27 +127,22 @@ for client in contract_data:
 
         document = strip_doc(contract_data[client][0][2])
 
-        # Get document type
         if len(document) == 11:
             document_type = 'F'
         else:
             document_type = 'J'
 
-        # Map client name to document in spf client data
         client_data[client] = [document.rjust(14), document_type]
 
-# Determine bdf data dimensions
 bdf_dim = bdf.shape
 
 bdf_height = bdf_dim[0]
 bdf_width = bdf_dim[1]
 
-# Limits for bdf data read
 bdf_title_row = 12
 bdf_title_col = 0
 bdf_title_max = bdf_width - 1
 
-# Columns for specific data type extractions
 bdf_data_cols = {
     'sequencia': False,
     'data': False,
@@ -171,7 +153,6 @@ bdf_data_cols = {
     'desconto': False
 }
 
-# Determine data columns dynamically
 while bdf_title_col < bdf_title_max:
     title = bdf.iloc[bdf_title_row, bdf_title_col]
     title = re.sub('\s', '', str(title).strip().lower())
@@ -193,43 +174,33 @@ while bdf_title_col < bdf_title_max:
 
     bdf_title_col += 1
 
-# Make sure all data columns have been determined
 for col in bdf_data_cols:
     if not bdf_data_cols[col]:
         print('Requires', col, 'data')
         sys.exit(0)
 
-# Bdf data
 bdf_client_data = {}
 bdf_row = 19
 
-# For determining whether the 'parcela' type is partial
 not_partial = ['dinheiro', 'banco', 'cheque', 'ted']
 is_partial = False
 
 quadra = ''
 
-# For each bdf row
 while bdf_row < bdf_height:
-    # Client name
     name = str(bdf.iloc[bdf_row, 0])
 
-    # If is not client name
     if not is_name.match(name):
-        # Make sure no term is present
         if check_term(name):
             is_term = True
 
-        # If is empreendimento name
         elif begins_with_empr.match(name):
             quadra = get_quadra(name)
             is_term = False
 
-        # Check if 'parcela' type is partial
         elif name.lower() == 'repasse':
             is_partial = True
 
-        # Check if 'parcela' type is not partial
         elif name.lower() in not_partial:
             is_partial = False
 
@@ -241,15 +212,12 @@ while bdf_row < bdf_height:
         bdf_row += 1
         continue
 
-    # Get 'parcela' type
     p_type = 'C'
     if is_partial:
         p_type = 'B'
 
-    # Get date
     date = format_date(str(bdf.iloc[bdf_row, bdf_data_cols['data']]))
 
-    # Make sure date is within bounds
     vencimento = format_date(str(bdf.iloc[bdf_row, bdf_data_cols['vencimento']]))
     vencimento_obj = datetime.datetime.strptime(vencimento, '%d/%m/%Y')
 
@@ -261,14 +229,11 @@ while bdf_row < bdf_height:
         continue
 
 
-    # Name without unidade
     parsed_name = strip_unidade(name).strip()
 
-    # Create name key if not mapped
     if not parsed_name in bdf_client_data:
         bdf_client_data[parsed_name] = []
 
-    # Get unidade
     unidade = match_unidade.match(name).group(0)
     contract = ''
 
@@ -291,14 +256,11 @@ while bdf_row < bdf_height:
         bdf_row += 1
         continue
 
-    # Format number to two decimal places
     format_number = lambda x: '{0:015.2f}'.format(x).replace('.', ',')
 
-    # Format sequencia to three digits per term
     pad_sequencia = lambda x: x.rjust(3, '0')
     format_sequencia = lambda x: '/'.join(map(pad_sequencia, x.split('/')))
 
-    # Add row data to name
     bdf_client_data[parsed_name].append({
         'quadra': quadra,
         'unidade': '{0:03}'.format(int(unidade)),
@@ -314,7 +276,6 @@ while bdf_row < bdf_height:
 
     bdf_row += 1
 
-# Write data to target .txt file
 txt = ''
 for key in bdf_client_data:
     for row in bdf_client_data[key]:
