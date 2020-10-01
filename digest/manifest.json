@@ -1,0 +1,51 @@
+{
+    "title": "Mega-Paysage TXT",
+    "programName": "Digest",
+    "packageName": "digest",
+    "isDefault": false,
+    "requirements": [
+        "xlrd==1.2.0",
+        "pandas==0.25.3"
+    ],
+    "allowedOutputExtensions": [
+        {
+            "name": "Text",
+            "extensions": [
+                "txt"
+            ]
+        }
+    ],
+    "defaultSettings": {
+        "network": {
+            "title": "Network",
+            "entries": {
+                "ip": {
+                    "title": "IP Address",
+                    "setting": "0.0.0.0",
+                    "type": "ipAddress"
+                },
+                "port": {
+                    "title": "Port",
+                    "setting": "5000",
+                    "type": "port"
+                }
+            }
+        }
+    },
+    "form": [
+        {
+            "id": "planilhas-saldo",
+            "label": "Planilhas Saldo",
+            "type": "file-input",
+            "allowedExtensions": [
+                {
+                    "name": "Excel",
+                    "extensions": [
+                        "xlsx",
+                        "xls"
+                    ]
+                }
+            ]
+        }
+    ]
+}

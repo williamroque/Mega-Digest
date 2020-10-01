@@ -4,13 +4,16 @@ import os
 import sys
 
 import re
+import json
 
 import datetime
 
 import socket
 from errno import ENETUNREACH
 
-boletim_file = sys.argv[1]
+inputs = json.loads(sys.stdin.readlines()[0])
+
+boletim_file = inputs['planilhas-saldo'][0]
 
 bdf = pd.read_excel(boletim_file)
 
@@ -26,11 +29,11 @@ def pull_contract_data():
         client.connect((data_host, data_port))
         client.settimeout(None)
     except socket.timeout:
-        print('Could not connect to server.')
+        print('Could not connect to server.', file=sys.stderr, end='\n\n')
         return
     except IOError as e:
         if e.errno == ENETUNREACH:
-            print('Client not connected.')
+            print('Client not connected.', file=sys.stderr, end='\n\n')
             return
 
     mes = b'request_data'
@@ -87,7 +90,7 @@ for line in contract_data_raw.split('\n'):
             contract_data[line_name].append(line_data)
 
 if not contract_data:
-    print('Unable to read contract data')
+    print('Unable to read contract data.', file=sys.stderr, end='\n\n')
     sys.exit(0)
 
 
@@ -291,5 +294,5 @@ for key in bdf_client_data:
         txt += row['desconto'] + ';'
         txt += row['p_type'] + '\n'
 
-with open(sys.argv[2], 'w+', encoding='utf8') as f:
+with open(inputs['output-path'], 'w+', encoding='utf8') as f:
     f.write(txt)

@@ -1,6 +1,0 @@
-echo '' > pscript.js
-echo 'const pScript = `' >> pscript.js
-echo "$(cat install_package.py)" >> pscript.js
-echo '`;' >> pscript.js
-echo 'exports.script = pScript;' >> pscript.js
-mv pscript.js GUI/mjs/pscript.js
