@@ -3,6 +3,14 @@
     "programName": "Digest",
     "packageName": "digest",
     "isDefault": false,
+    "requiresDatabaseAccess": true,
+    "dataHeaders": [
+        "Unidade",
+        "N. Contrato",
+        "CPF/CNPJ",
+        "Nome",
+        "Quadra"
+    ],
     "requirements": [
         "xlrd==1.2.0",
         "pandas==0.25.3"
@@ -17,7 +25,7 @@
     ],
     "defaultSettings": {
         "network": {
-            "title": "Network",
+            "title": "Rede",
             "entries": {
                 "ip": {
                     "title": "IP Address",
@@ -28,6 +36,21 @@
                     "title": "Port",
                     "setting": "5000",
                     "type": "port"
+                }
+            }
+        },
+        "credentials": {
+            "title": "Autentificação",
+            "entries": {
+                "username": {
+                    "title": "Usuário",
+                    "setting": "guest",
+                    "type": "username"
+                },
+                "password": {
+                    "title": "Senha",
+                    "setting": "fawkes",
+                    "type": "password"
                 }
             }
         }
