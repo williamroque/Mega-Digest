@@ -8,91 +8,21 @@ import json
 
 import datetime
 
-import socket
-from errno import ENETUNREACH
-
 inputs = json.loads(sys.stdin.readlines()[0])
 
 boletim_file = inputs['planilhas-saldo'][0]
 
 bdf = pd.read_excel(boletim_file)
 
-data_host = '192.168.25.15'
-data_port = 8888
-
-BUFFER_SIZE = 2000
-
-def pull_contract_data():
-    try:
-        client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        client.settimeout(5)
-        client.connect((data_host, data_port))
-        client.settimeout(None)
-    except socket.timeout:
-        print('Could not connect to server.', file=sys.stderr, end='\n\n')
-        return
-    except IOError as e:
-        if e.errno == ENETUNREACH:
-            print('Client not connected.', file=sys.stderr, end='\n\n')
-            return
-
-    mes = b'request_data'
-
-    data = b''
-
-    client.send(mes)
-
-    while True:
-        rec_data = client.recv(BUFFER_SIZE)
-
-        if rec_data[-4:] == b'exit':
-            data += rec_data[:-4]
-            break
-        data += rec_data
-
-    client.close()
-
-    return data.strip().decode('utf-8')
-
-remote_contract_data = pull_contract_data()
-local_contract_data = ''
-
-dir_path = os.path.dirname(os.path.realpath(__file__))
-contract_data_path = dir_path + '/contract_data.txt'
-
-if os.path.exists(contract_data_path):
-    with open(contract_data_path, 'r+', encoding='utf8') as f:
-        local_contract_data = f.read()
-
-contract_data_raw = ''
-
-if remote_contract_data:
-    contract_data_raw = remote_contract_data
-
-    if remote_contract_data != local_contract_data:
-        print('Updating contract data...')
-        with open(contract_data_path, 'w+', encoding='utf8') as f:
-            f.write(remote_contract_data)
-else:
-    contract_data_raw = local_contract_data
-
 contract_data = {}
+for line in inputs['data']:
+    line_data = [line[header.replace('.', '')] for header in inputs['headers'] if header != 'Nome']
+    name = line['Nome']
 
-for line in contract_data_raw.split('\n'):
-    if line:
-        line_data = re.sub(r'\\u\w{4}', '', repr(line)[1:-1]).split(';')
-        *line_data, line_name, quadra = line_data
-        line_data.append(quadra)
-        line_name = line_name.strip()
-        if not line_name in contract_data:
-            contract_data[line_name] = [line_data]
-        else:
-            contract_data[line_name].append(line_data)
-
-if not contract_data:
-    print('Unable to read contract data.', file=sys.stderr, end='\n\n')
-    sys.exit(0)
-
+    if not name in contract_data:
+        contract_data[name] = [line_data]
+    else:
+        contract_data[name].append(line_data)
 
 is_name = re.compile('^\d+ - .+')
 
