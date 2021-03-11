@@ -153,6 +153,8 @@ class HttpClientThread(threading.Thread):
                     if not self.verify_credentials(username, password):
                         break
 
+                    response = HTTPResponse('action-response', 200, 'text/plain')
+
                 self.send_http_response(response)
 
             else:

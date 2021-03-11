@@ -60,11 +60,11 @@ let currentRowValues;
 let isEditing;
 
 // Keep track of current search by term option
-let currentSearchByItem = searchByListElement.childNodes[1];
+let currentSearchByItem = searchByListElement.childNodes[3];
 
 // FOR MAINTENANCE PURPOSES
 
-const isDeveloping = true;
+const isDeveloping = false;
 
 if (isDeveloping) {
     if (!localStorage.getItem('developer')) {
@@ -145,7 +145,7 @@ function addRow(row) {
 
     data.push({
         'Unidade': unidade,
-        'N. Contrato': contrato,
+        'N. Contrato Pays.': contrato,
         'CPF/CNPJ': documento,
         'Nome': nome,
         'Quadra': quadra
@@ -162,7 +162,7 @@ addButtonElement.addEventListener('click', e => {
     table.setAttribute('id', 'add-table');
 
     const headerRow = document.createElement('TR');
-    const headers = ['Unidade', 'N. Contrato', 'CPF/CNPJ', 'Nome', 'Quadra'];
+    const headers = ['Unidade', 'N. Contrato Pays.', 'CPF/CNPJ', 'Nome', 'Quadra'];
 
     headers.forEach(header => {
         const headerElement = document.createElement('TH');
@@ -195,6 +195,14 @@ addButtonElement.addEventListener('click', e => {
 
                     dataRow.push(column);
                 }
+
+                if (data.some(row => row['N. Contrato Pays.'] === dataRow[1]))
+                    if (!confirm('Já existe entrada com esse número de contrato. Deseja continuar?'))
+                        return;
+
+                if (data.some(row => row['Nome'] === dataRow[3] && row['Quadra'] === dataRow[4] && row['Unidade'] === dataRow[0]))
+                    if (!confirm('Já existe entrada com esse nome, unidade e quadra. Deseja continuar?'))
+                        return;
 
                 contactServer('ADD', dataRow.join(';')).then(() => {
                     const rowElement = document.createElement('TR');
@@ -509,6 +517,8 @@ document.addEventListener('keydown', e => {
             hideSearchByList();
         if (isAddingContract)
             hideBlockingPrompt();
+        if (isEditing)
+            leaveEditingMode(currentRowValues);
     }
 }, false);
 

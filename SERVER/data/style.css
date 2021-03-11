@@ -78,19 +78,19 @@ body, html {
 }
 
 .search-by-active {
-    background: #C0B283 !important;
+    background: #ccbd8b !important;
     color: #FFF !important;
 }
 
 .search-by-item-active, .search-by-list-item:hover {
-    background: #918661 !important;
+    background: #f5f0e0 !important;
 }
 
 #search-by-list {
     border: solid 1px #C0B283;
     border-radius: 5px;
     width: 100%;
-    background: #C0B283;
+    background: transparent;
     transform: translateY(2px);
     list-style: none;
     width: 100%;
@@ -110,8 +110,8 @@ body, html {
     padding: 0;
     margin: 0;
     border: none;
-    background: #C0B283;
-    color: #FFF;
+    background: #FFF;
+    color: #918661;
     cursor: pointer;
     display: flex;
     font-size: 11pt;
@@ -206,6 +206,7 @@ td, th {
     color: #C0B283;
     border: none;
     cursor: pointer;
+    outline: none;
 }
 
 .manage-prompt-button:hover {
@@ -254,17 +255,18 @@ td, th {
 #blocking-prompt {
     position: absolute;
     left: 50%;
-    top: 50%;
+    top: 28%;
     transform: translate(-50%, -50%);
-    background: #0a0a0a;
+    background: #ffffff;
     padding: 50px;
     width: 70%;
     align-items: center;
     justify-content: center;
     display: none;
-    color: white;
+    color: #bdb9aa;
     font-family: helvetica;
     z-index: 3;
+    border: solid 2px #d0cdc2;
 }
 
 #blocking-prompt-visible {
@@ -291,11 +293,10 @@ td, th {
 }
 
 .add-input {
-    outline: none;
     border: none;
-    border-bottom: solid 1px #CCC;
+    border-bottom: solid 1.5px #b5b2a6;
     background: transparent;
-    color: white;
+    color: #636055;
     width: 96%;
     padding-left: 5px;
     padding-right: 5px;
@@ -304,6 +305,11 @@ td, th {
     font-family: helvetica;
     font-weight: 300;
     letter-spacing: .06em;
+}
+
+.add-input:focus {
+    border-bottom-color: #636055;
+    transition-duration: .1s;
 }
 
 /* User login */
@@ -390,4 +396,8 @@ td, th {
 #submit-login:active {
     background: #C0B283;
     color: white;
+}
+
+* {
+    outline: none;
 }
