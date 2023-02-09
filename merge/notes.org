@@ -1,0 +1,6 @@
+#+title: Project Notes
+
+* Outline
+- Generate saldo demonstrativo from extrato, leaving unavailable fields blank, but with header
+- Correlate payments from francesinha with saldo, generating relatório de correlação in the process for name--date-payment value combinations that do not exist in extrato
+- Highlight actual payments from francesinha in green

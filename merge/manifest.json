@@ -1,0 +1,70 @@
+{
+    "title": "Saldo",
+    "programName": "Merge",
+    "packageName": "saldo",
+    "isDefault": false,
+    "requirements": [
+        "XlsxWriter==3.0.8",
+        "xlrd==2.0.1",
+        "numpy==1.24.2",
+        "pandas==1.5.3"
+    ],
+    "allowedOutputExtensions": [
+        {
+            "name": "Excel",
+            "extensions": [
+                "xlsx"
+            ]
+        }
+    ],
+    "defaultSettings": {
+        "janela": {
+            "title": "Janela",
+            "entries": {
+                "dataWindowClosesOnFinish": {
+                    "title": "Fechar j. de dados ao completar",
+                    "setting": true,
+                    "type": "checkbox"
+                }
+            }
+        },
+        "formulario": {
+            "title": "Formulário",
+            "entries": {
+                "useDecimalDot": {
+                    "title": "Usar ponto decimal",
+                    "setting": false,
+                    "type": "checkbox"
+                }
+            }
+        }
+    },
+    "form": [
+        {
+            "id": "planilha-extrato",
+            "label": "Planilha Extrato",
+            "type": "file-input",
+            "allowedExtensions": [
+                {
+                    "name": "Excel",
+                    "extensions": [
+                        "xlsx"
+                    ]
+                }
+            ]
+        },
+        {
+            "id": "planilhas-francesinha",
+            "label": "Planilhas Francesinha",
+            "type": "file-input",
+            "allowedExtensions": [
+                {
+                    "name": "Excel",
+                    "extensions": [
+                        "xlsx"
+                    ]
+                }
+            ]
+        }
+    ]
+}
