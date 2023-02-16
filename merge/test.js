@@ -3,29 +3,24 @@ const { spawn } = require('child_process');
 const subprocess = spawn('python', ['main.py']);
 
 const input = {
-    'planilha-extrato': '/Users/jetblack/Documents/Work/Ethos/Mega/mega-paysage-digest/merge/samples/Extrato.xls',
+    'planilhas-extrato': [
+        '/Users/jetblack/Documents/Work/Ethos/Mega/mega-paysage-digest/merge/samples/Extratos/BRENA LORENA MONTEIRO MOURA - VILA PRIMAVERA QD 837 LT 105.xls',
+        '/Users/jetblack/Documents/Work/Ethos/Mega/mega-paysage-digest/merge/samples/Extratos/ADRIANO BARBOSA DA SILVA - QD 844 LT 145.xls'
+    ],
     'planilhas-francesinha': [
-        '/Users/jetblack/Documents/Work/Ethos/Mega/mega-paysage-digest/merge/samples/Francesinhas/LON_01.12.22.xls',
-        '/Users/jetblack/Documents/Work/Ethos/Mega/mega-paysage-digest/merge/samples/Francesinhas/LON_02.12.22.xls',
-        '/Users/jetblack/Documents/Work/Ethos/Mega/mega-paysage-digest/merge/samples/Francesinhas/LON_05.12.22.xls',
-        '/Users/jetblack/Documents/Work/Ethos/Mega/mega-paysage-digest/merge/samples/Francesinhas/LON_06.12.22.xls',
-        '/Users/jetblack/Documents/Work/Ethos/Mega/mega-paysage-digest/merge/samples/Francesinhas/LON_07.12.22.xls',
-        '/Users/jetblack/Documents/Work/Ethos/Mega/mega-paysage-digest/merge/samples/Francesinhas/LON_08.12.22.xls',
-        '/Users/jetblack/Documents/Work/Ethos/Mega/mega-paysage-digest/merge/samples/Francesinhas/LON_09.12.22.xls',
-        '/Users/jetblack/Documents/Work/Ethos/Mega/mega-paysage-digest/merge/samples/Francesinhas/LON_12.12.22.xls',
-        '/Users/jetblack/Documents/Work/Ethos/Mega/mega-paysage-digest/merge/samples/Francesinhas/LON_13.12.22.xls',
-        '/Users/jetblack/Documents/Work/Ethos/Mega/mega-paysage-digest/merge/samples/Francesinhas/LON_14.12.22.xls',
-        '/Users/jetblack/Documents/Work/Ethos/Mega/mega-paysage-digest/merge/samples/Francesinhas/LON_15.12.22.xls',
-        '/Users/jetblack/Documents/Work/Ethos/Mega/mega-paysage-digest/merge/samples/Francesinhas/LON_16.12.22.xls',
-        '/Users/jetblack/Documents/Work/Ethos/Mega/mega-paysage-digest/merge/samples/Francesinhas/LON_19.12.22.xls',
-        '/Users/jetblack/Documents/Work/Ethos/Mega/mega-paysage-digest/merge/samples/Francesinhas/LON_20.12.22.xls',
-        '/Users/jetblack/Documents/Work/Ethos/Mega/mega-paysage-digest/merge/samples/Francesinhas/LON_21.12.22.xls',
-        '/Users/jetblack/Documents/Work/Ethos/Mega/mega-paysage-digest/merge/samples/Francesinhas/LON_22.12.22.xls',
-        '/Users/jetblack/Documents/Work/Ethos/Mega/mega-paysage-digest/merge/samples/Francesinhas/LON_23.12.22.xls',
-        '/Users/jetblack/Documents/Work/Ethos/Mega/mega-paysage-digest/merge/samples/Francesinhas/LON_26.12.22.xls',
-        '/Users/jetblack/Documents/Work/Ethos/Mega/mega-paysage-digest/merge/samples/Francesinhas/LON_27.12.22.xls',
-        '/Users/jetblack/Documents/Work/Ethos/Mega/mega-paysage-digest/merge/samples/Francesinhas/LON_28.12.22.xls',
-        '/Users/jetblack/Documents/Work/Ethos/Mega/mega-paysage-digest/merge/samples/Francesinhas/LON_29.12.22.xls',
+        'samples/Francesinhas/01. JANEIRO/2589-5 FRANCESA - 17.01.23.xls',
+        'samples/Francesinhas/01. JANEIRO/2589-5 FRANCESA - 03.01.23.xls',
+        'samples/Francesinhas/01. JANEIRO/2589-5 FRANCESA - 30.01.23.xls',
+        'samples/Francesinhas/01. JANEIRO/2589-5 FRANCESA - 11.01.23.xls',
+        'samples/Francesinhas/01. JANEIRO/2589-5 VPRIMAVERA - 01.23 - Consolidada.xls',
+        'samples/Francesinhas/01. JANEIRO/2589-5 FRANCESA - 23.01.23.xls',
+        'samples/Francesinhas/01. JANEIRO/2589-5 FRANCESA - 31.01.23.xls',
+        'samples/Francesinhas/01. JANEIRO/2589-5 FRANCESA - 04.01.23.xls',
+        'samples/Francesinhas/01. JANEIRO/2589-5 FRANCESA - 10.01.23.xls',
+        'samples/Francesinhas/01. JANEIRO/2589-5 FRANCESA - 20.01.23.xls',
+        'samples/Francesinhas/01. JANEIRO/2589-5 FRANCESA - 13.01.23.xls',
+        'samples/Francesinhas/01. JANEIRO/2589-5 FRANCESA - 26.01.23.xls',
+        'samples/Francesinhas/01. JANEIRO/2589-5 FRANCESA - 06.01.23.xls'
     ],
     'output-path': '/Users/jetblack/Desktop/output.xlsx'
 };

@@ -11,8 +11,7 @@ class Spreadsheet():
         self.workbook.set_size(props['width'], props['height'])
 
         self.sheet = self.workbook.add_worksheet(props['sheet_title'])
-        self.sheet.hide_gridlines(2)
-        self.sheet.set_default_row(18)
+        self.sheet.set_default_row(15)
 
         self.padding = padding
 

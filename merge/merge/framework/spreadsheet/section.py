@@ -13,9 +13,9 @@ class Section():
     def add_row(self):
         self.structure.append([])
 
-    def add_group(self, group):
+    def add_group(self, group, structure=-1):
         self.groups.append(group)
-        self.structure[-1].append(group)
+        self.structure[structure].append(group)
 
     def query(self, group_id):
         search_generator = (

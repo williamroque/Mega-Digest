@@ -41,14 +41,15 @@
     },
     "form": [
         {
-            "id": "planilha-extrato",
-            "label": "Planilha Extrato",
+            "id": "planilhas-extrato",
+            "label": "Planilhas Extrato",
             "type": "file-input",
             "allowedExtensions": [
                 {
                     "name": "Excel",
                     "extensions": [
-                        "xlsx"
+                        "xlsx",
+                        "xls"
                     ]
                 }
             ]
@@ -61,7 +62,8 @@
                 {
                     "name": "Excel",
                     "extensions": [
-                        "xlsx"
+                        "xlsx",
+                        "xls"
                     ]
                 }
             ]
