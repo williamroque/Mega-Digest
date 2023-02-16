@@ -8,3 +8,9 @@ dist/
 **/contract_data.txt
 
 __pycache__/
+
+samples/
+
+**/*.xlsx
+**/*.xls
+**/*.pdf
