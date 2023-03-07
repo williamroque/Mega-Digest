@@ -11,7 +11,7 @@ class History:
         self.francesinhas = francesinhas
         self.history = {}
 
-        self.claimed = set()
+        self.unclaimed = set()
 
     def build(self):
         for francesinha in self.francesinhas:
@@ -30,7 +30,6 @@ class History:
                 else:
                     self.history[date] = {entry}
 
-
     def has(self, date, query_name, query_value):
         if not date in self.history:
             return False
@@ -38,7 +37,13 @@ class History:
         for name, value in self.history[date]:
             if name.strip().lower() == query_name.strip().lower():
                 if value - query_value < 5:
-                    self.claimed.add((date, name, value))
+                    key = (date, name, value)
+
+                    if key in self.unclaimed:
+                        self.unclaimed.remove(key)
+
                     return True
+
+        self.unclaimed.add((date, query_name, query_value))
 
         return False

@@ -2,13 +2,18 @@ import xlsxwriter
 
 
 class Spreadsheet():
-    def __init__(self, inputs, props, padding):
+    def __init__(self, inputs, props, padding, workbook=None):
         self.inputs = inputs
 
         self.sections = []
 
-        self.workbook = xlsxwriter.Workbook(props['output_path'])
-        self.workbook.set_size(props['width'], props['height'])
+        self.title = props['sheet_title']
+
+        self.workbook = workbook
+
+        if self.workbook is None:
+            self.workbook = xlsxwriter.Workbook(props['output_path'])
+            self.workbook.set_size(props['width'], props['height'])
 
         self.sheet = self.workbook.add_worksheet(props['sheet_title'])
         self.sheet.set_default_row(15)
@@ -39,7 +44,9 @@ class Spreadsheet():
         except StopIteration:
             return None
 
-    def render(self):
+    def render(self, close=True):
         for section in self.sections:
             section.render(self.sheet, self.workbook)
-        self.workbook.close()
+
+        if close:
+            self.workbook.close()
