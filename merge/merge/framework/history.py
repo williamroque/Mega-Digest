@@ -30,6 +30,8 @@ class History:
                 else:
                     self.history[date] = {entry}
 
+                self.unclaimed.add((date, *entry))
+
     def has(self, date, query_name, query_value):
         if not date in self.history:
             return False
@@ -43,7 +45,5 @@ class History:
                         self.unclaimed.remove(key)
 
                     return True
-
-        self.unclaimed.add((date, query_name, query_value))
 
         return False
